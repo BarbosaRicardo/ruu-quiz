@@ -2,10 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#2f5d8a" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#17181a" media="(prefers-color-scheme: dark)">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reasoning Under Uncertainty - Quiz</title>
 <style>
   :root {
@@ -101,10 +98,18 @@
 <header>
   <h1>Reasoning Under Uncertainty</h1>
   <p class="sub">EN.605.745 &middot; practice quiz</p>
-  <p class="sub" style="margin:-10px 0 16px"><a href="../reference/" style="color:var(--accent)">Definitions</a> &middot; <a href="../workbench/" style="color:var(--accent)">Workbench</a> &middot; <a href="../interpretations/" style="color:var(--accent)">Interpretations</a> &middot; <a href="../" style="color:var(--accent)">Quiz</a></p>
-  <div class="tabs" role="tablist">
-    <button class="tab" role="tab" data-mod="0" aria-selected="true">Module 1</button>
-    <button class="tab" role="tab" data-mod="1" aria-selected="false">Module 2</button>
+<p class="sub" style="margin:-10px 0 16px"><a href="reference/" style="color:var(--accent)">Definitions</a> &middot; <a href="workbench/" style="color:var(--accent)">Workbench</a> &middot; <a href="interpretations/" style="color:var(--accent)">Interpretations</a></p>
+  <div class="picker">
+    <div class="pickrow" id="bankPick"></div>
+    <div class="pickrow">
+      <div class="seg" id="modeSeg">
+        <button data-mode="sample" aria-pressed="true">10 random</button>
+        <button data-mode="all" aria-pressed="false">Everything</button>
+      </div>
+      <span class="poolinfo" id="poolInfo"></span>
+      <button class="act" id="newSet">New draw</button>
+    </div>
+    <div class="permalink" id="permalink"></div>
   </div>
 </header>
 
@@ -113,7 +118,6 @@
 <div class="controls">
   <button class="act primary" id="submit">Submit answers</button>
   <button class="act" id="retry" hidden>Try again</button>
-  <button class="act" id="shuffle">Shuffle</button>
 </div>
 
 <div class="score" id="score" hidden></div>
@@ -242,7 +246,113 @@ const MODULES = [
     answer: [0, 1, 2],
     why: "The first three are stated directly in the notes. The fourth is false and worth remembering: if A and B are mutually exclusive, learning that A occurred tells you B did not, which is maximal dependence rather than independence.",
     src: "Notes Def. 1.14 and Prop. 1.15 (1-10) &middot; Lecture 1C, slide 8"
-  }
+  },
+  { type:"many",
+    q:"Probability theory requires the event space S to satisfy which basic properties?",
+    options:["It contains the empty event &empty; and the trivial event &Omega;","It is closed under union","It is closed under complementation","Every event in it has nonzero probability"],
+    answer:[0,1,2],
+    why:"Closure under union and complement drags intersection and set difference along for free. The fourth option describes a <em>positive</em> distribution, which is a separate and much stronger condition.",
+    src:"Koller &sect;2.1.1.1, book p. 16" },
+  { type:"one",
+    q:"A distribution P is called <em>positive</em> when what is true?",
+    options:["P(&alpha;) &gt; 0 for every non-empty event &alpha;","P(&alpha;) &ge; 0 for every event","P(&Omega;) = 1","P(&alpha; &cap; &beta;) = P(&alpha;)P(&beta;) for all &alpha;, &beta;"],
+    answer:[0],
+    why:"Nothing possible gets probability exactly zero. Option 2 is just axiom 1 and holds for every distribution. Positivity buys extra properties, notably intersection, which fails in general.",
+    src:"Koller Def. 2.5, book p. 25" },
+  { type:"tf",
+    q:"&#120124;[X + Y] = &#120124;[X] + &#120124;[Y] holds even when X and Y are not independent.",
+    answer:[0],
+    why:"True, and Koller stresses it. Linearity of expectation is unconditional, which is why expected-value arguments crack problems that look hopelessly correlated.",
+    src:"Koller Prop. 2.4, book p. 32" },
+  { type:"tf",
+    q:"Var[X + Y] = Var[X] + Var[Y] holds for any two random variables.",
+    answer:[1],
+    why:"False. Variance adds only under <em>independence</em>. Compare with linearity of expectation, which needs no assumption. Assuming variances add when a hidden common cause exists is how confidence intervals come out too narrow.",
+    src:"Koller Prop. 2.6, book p. 33" },
+  { type:"one",
+    q:"Chebyshev's inequality, P(|X &minus; &#120124;[X]| &ge; t) &le; Var[X]/t&sup2;, requires which assumption?",
+    options:["Only a finite variance","That X is Gaussian","That X is non-negative","That X and its mean are independent"],
+    answer:[0],
+    why:"That is the appeal: no distributional shape is assumed. In exchange it gives a loose upper bound rather than an answer. Non-negativity is what Markov's inequality needs instead.",
+    src:"Koller Thm. 2.1, book p. 33" },
+  { type:"one",
+    q:"What is a topological ordering of a graph's nodes?",
+    options:[
+      "An ordering where X<sub>i</sub>&rarr;X<sub>j</sub> implies i comes before j",
+      "An ordering by number of parents",
+      "An ordering where every node precedes its ancestors",
+      "Any ordering of the nodes in a connected graph"],
+    answer:[0],
+    why:"Every arrow points forward in the list, like a recipe where prerequisites always appear first. It exists only for acyclic graphs and is usually not unique.",
+    src:"Koller Def. 2.19, book p. 36" },
+  { type:"one",
+    q:"What is the difference between a path and a trail?",
+    options:[
+      "A path never travels against an arrow; a trail ignores arrow direction",
+      "A path may repeat nodes; a trail may not",
+      "A path is undirected; a trail is directed",
+      "There is no difference; the terms are interchangeable"],
+    answer:[0],
+    why:"Driving with the one-way signs versus walking and ignoring them. Every path is therefore also a trail, but not the reverse. This distinction is what makes d-separation work, since influence flows along trails.",
+    src:"Koller Def. 2.15 and 2.16, book p. 36" },
+  { type:"one",
+    q:"What is the difference between a cycle and a loop?",
+    options:[
+      "A cycle is a directed path returning to its start; a loop is a trail returning to its start",
+      "A cycle has length 3 or more; a loop has length 2",
+      "A cycle occurs in undirected graphs, a loop in directed graphs",
+      "A loop must contain a chord; a cycle need not"],
+    answer:[0],
+    why:"Loop is to trail as cycle is to path. A graph can be perfectly acyclic and still be full of loops, which is exactly why singly connected graphs are the easy case for inference.",
+    src:"Koller Def. 2.20 and 2.22, book pp. 37-38" },
+  { type:"one",
+    q:"A clique X is called <em>maximal</em> when what is true?",
+    options:[
+      "No superset of X is also a clique",
+      "X is the largest clique in the graph",
+      "X contains every node in the graph",
+      "X has no chords"],
+    answer:[0],
+    why:"Maximal is local: you cannot extend this one. Maximum is global. A three-node maximal clique can sit in a graph that also has a five-node clique elsewhere.",
+    src:"Koller Def. 2.13, book p. 35" },
+  { type:"one",
+    q:"An undirected graph is <em>chordal</em> when what holds?",
+    options:[
+      "Every loop of length 4 or more has a chord joining two nonconsecutive nodes",
+      "Every pair of nodes is connected by an edge",
+      "It contains no loops at all",
+      "Every node has at most one parent"],
+    answer:[0],
+    why:"Four people in a square each knowing only their neighbours is the forbidden pattern. Loops of length 3 are automatically fine, since there are no nonconsecutive nodes to join. Chordal graphs are exactly the ones where exact inference is tractable.",
+    src:"Koller Def. 2.24, book p. 38" },
+  { type:"one",
+    q:"Bowl C&#8321; holds 3 red and 7 blue chips; bowl C&#8322; holds 8 red and 2 blue. A die selects C&#8321; on a 5 or 6, otherwise C&#8322;. A red chip is drawn. What is P(C&#8321; | red)?",
+    options:["3/19","1/3","3/10","19/30"],
+    answer:[0],
+    why:"Priors are 1/3 and 2/3. P(red) = (3/10)(1/3) + (8/10)(2/3) = 19/30. Then P(C&#8321;|red) = (3/30)/(19/30) = 3/19 &asymp; 0.158. Note it dropped below the prior of 1/3, which is right: C&#8322; is the red-heavy bowl, so red is evidence <em>against</em> C&#8321;.",
+    src:"Lecture 1B, slide 14 &middot; Notes Def. 1.11 (1-7)" },
+  { type:"one",
+    q:"P(GradeA | Smart) = 0.6, P(Smart) = 0.3, P(GradeA) = 0.2. What is P(Smart | GradeA)?",
+    options:["0.9","0.45","0.6","0.18"],
+    answer:[0],
+    why:"(0.6 &times; 0.3) / 0.2 = 0.9. If the test were easier so that P(GradeA) = 0.4, the same evidence would only give 0.45. Evidence is informative in proportion to how surprising it is.",
+    src:"Lecture 1B, slides 16-17 &middot; Koller Example 2.1, book p. 19" },
+  { type:"one",
+    q:"From a joint table, P(&not;B, F, &not;Y) = 0.01 and P(B, F, &not;Y) = 0.2. What is P(&not;Bird | Flier, &not;Young)?",
+    options:["0.048","0.01","0.21","0.2"],
+    answer:[0],
+    why:"The denominator must be built by marginalizing over Bird: P(F, &not;Y) = 0.01 + 0.2 = 0.21. Then 0.01/0.21 &asymp; 0.048. Forgetting to sum out the missing variable is the standard error here.",
+    src:"Lecture 1C, slide 12 &middot; Notes &sect;1.5 (1-11)" },
+  { type:"tf",
+    q:"Conditional probability satisfies the axioms of probability, and is therefore itself a probability distribution.",
+    answer:[0],
+    why:"True, and it is why all the machinery keeps working once you condition. Both your notes and Koller state it, and both leave the proof to you as an exercise.",
+    src:"Notes Def. 1.9 (1-6) &middot; Lecture 1B, slide 9 &middot; Koller Exercise 2.4, book p. 39" },
+  { type:"tf",
+    q:"For a continuous random variable X, P(X = x) = 0 for every single value x.",
+    answer:[0],
+    why:"True. Only intervals carry probability, which is also why a density p(x) is not a probability and may exceed 1. On the interval [0, 0.5] a uniform density equals 2.",
+    src:"Notes Def. 1.13 (1-8) &middot; Koller Def. 2.6, book p. 28" }
   ]
 },
 {
@@ -354,21 +464,195 @@ const MODULES = [
     answer: [0, 1, 2],
     why: "The listed confusions are relative versus absolute probabilities, separation of probability and utility, probabilities as a measure of belief in a proposition, and probability versus uncertainty about the probability. The fourth option is a genuine source of error but is not on that list.",
     src: "Notes &sect;2.2.4 (2-7) &middot; Lecture 2C, slide 3"
-  }
+  },
+  { type:"one",
+    q:"According to Koller's historical notes, why did the AI community turn away from probabilistic methods?",
+    options:[
+      "A belief that people do not manipulate numbers when reasoning, plus the rigid independence assumptions in early expert systems",
+      "Probability was proved mathematically inconsistent",
+      "Computers of the era could not perform floating-point arithmetic",
+      "Bayes' rule had not yet been discovered"],
+    answer:[0],
+    why:"Koller adds that the missing piece was \"a flexible, scalable mechanism to represent interactions between variables.\" The rejection was a real limitation misdiagnosed as a fatal one, and graphical models are the fix.",
+    src:"Koller &sect;1.4 Historical Notes, book p. 13" },
+  { type:"one",
+    q:"Koller describes an attempt to rescue the frequentist reading of one-off events by finding a <em>reference class</em>. What is his verdict on it?",
+    options:[
+      "None of the attempts has proved entirely satisfactory",
+      "It fully resolves the problem",
+      "It works for weather but not for medicine",
+      "It requires a Gaussian assumption"],
+    answer:[0],
+    why:"Similar to what, exactly? Afternoons in this city, in March, after a dry January? Each answer gives a different number. This is Cox's \"field of probable inference outside the range of that theory,\" compressed into two paragraphs.",
+    src:"Koller &sect;2.1.1.3, book p. 17" },
+  { type:"tf",
+    q:"Cox notes that the frequency definition of probability is not even sufficient to establish the connection between statistical mechanics and thermodynamics.",
+    answer:[0],
+    why:"True, and your notes call it striking. Frequency fails inside physics, the very place you would most expect it to hold.",
+    src:"Notes &sect;2.3.1 (2-9) &middot; Lecture 2D" },
+  { type:"tf",
+    q:"Under Cheeseman's view, two ideal believers given exactly the same information may still legitimately assign different probabilities.",
+    answer:[1],
+    why:"False, and this is the clause students drop. Probabilities are subjective in that the value depends on the believer's information, but <em>objective</em> in that the same ideal believers with the same information should arrive at the same value. That is what stops subjectivism from becoming 'anything goes.'",
+    src:"Notes Cor. 2.7(c) (2-5) &middot; Lecture 2B" },
+  { type:"one",
+    q:"In Cox's graded series of four examples, which one is the case where the frequency interpretation becomes impossible rather than merely difficult?",
+    options:[
+      "Whether a large number can be written as a sum of cubes",
+      "The score in a number of coin tosses",
+      "The value of the Joule equivalent",
+      "The reciprocal fine-structure constant"],
+    answer:[0],
+    why:"The claim is simply true or false; mathematics does not roll dice. There is no ensemble, not even a hypothetical one, and no measurement error to hide behind. The series is graded precisely so that no single step is the obvious break.",
+    src:"Notes &sect;2.3.2.1 (2-10) &middot; Lecture 2D, slides 6-10" },
+  { type:"one",
+    q:"In Cox's Joule-equivalent example, what exactly forms the ensemble?",
+    options:[
+      "An imagined ensemble of measurements, of which yours is a random sample",
+      "An ensemble of different possible values of the constant",
+      "An ensemble of universes with different physical laws",
+      "There is no ensemble; the case is purely subjective"],
+    answer:[0],
+    why:"The constant does not vary; only your measurement error does. Frequency is rescued by shifting what is being counted, and it works provided there are no systematic errors. Note you are now counting a hypothetical population you invented rather than one you observed.",
+    src:"Notes Example 9 (2-10) &middot; Lecture 2D, slide 8" },
+  { type:"one",
+    q:"Cheeseman's point-mass analogy from mechanics is aimed at which claim?",
+    options:[
+      "That more than one number is needed to represent uncertainty",
+      "That probability is a frequency ratio",
+      "That priors assume more information than is given",
+      "That numbers are not necessary at all"],
+    answer:[0],
+    why:"A complex body can be replaced by a point mass at its centre of gravity and give identical results. How many numbers you need depends on the question, so if no further evidence is coming, one number suffices. The target is Dempster-Shafer, which always makes you carry belief and plausibility.",
+    src:"Notes &sect;2.2.3 item 5 (2-7) &middot; Lecture 2B, slide 6" },
+  { type:"one",
+    q:"What does the maximum entropy principle state?",
+    options:[
+      "Choose the distribution with the highest entropy among those satisfying your constraints",
+      "Choose the distribution that maximizes the likelihood of the data",
+      "Always choose a uniform distribution when uncertain",
+      "Maximize the information gained from each observation"],
+    answer:[0],
+    why:"Say as little as the constraints allow. Your notes place conditional independence inside this family, which reframes it: assuming conditional independence is picking the least committal option consistent with what you know, not asserting a fact about the world.",
+    src:"Notes Def. 2.8 (2-5) &middot; Lecture 2B, slide 4" },
+  { type:"one",
+    q:"In the certainty-factors example, Watson's call carries CF 0.5 and Mrs Gibbons' carries 0.9. Certainty factors are presented as an alternative to Bayesian reasoning under what conditions?",
+    options:[
+      "When reliable statistical information is unavailable or independence of evidence cannot be assumed",
+      "When the sample space is infinite",
+      "When all evidence is known to be independent",
+      "When priors are uniform"],
+    answer:[0],
+    why:"That is the stated motivation, and it is a real problem. The objection is not the motivation but the semantics: nobody can say what a 0.5 <em>is</em>, so nobody can check whether the combining rule is correct.",
+    src:"Notes Def. 2.2 (2-3) &middot; Lecture 2A, slides 6-7" },
+  { type:"one",
+    q:"What does confirmation theory require before a hypothesis counts as confirmed?",
+    options:[
+      "That the evidence for it passes a certain threshold",
+      "That its probability exceeds 0.5",
+      "That no contradictory evidence exists",
+      "That the prior be uniform"],
+    answer:[0],
+    why:"E confirms H if P(H|E) exceeds P(H), with a cutoff deciding when that counts. The cost is that it discards the magnitude, and the threshold is arbitrary.",
+    src:"Notes Def. 2.4 (2-4) &middot; Lecture 2A, slide 9" },
+  { type:"one",
+    q:"What does non-monotonic logic exist to capture?",
+    options:[
+      "Defeasible inference, where a reasoner reserves the right to retract conclusions given further information",
+      "Truth values between 0 and 1",
+      "Belief assigned to subsets rather than elements",
+      "Thresholds for confirming a hypothesis"],
+    answer:[0],
+    why:"Ordinary logic is a ratchet: once proved, proved forever. Real reasoning must be able to take a conclusion back. Its failure mode is deadlock rather than error, which the Nixon diamond demonstrates.",
+    src:"Notes Def. 2.1 (2-2) &middot; Lecture 2A, slide 4" },
+  { type:"one",
+    q:"Koller says the frequentist interpretation \"gives probabilities a tangible semantics.\" For which kind of system?",
+    options:[
+      "Concrete physical systems such as dice, coin flips and card games",
+      "One-off events such as tomorrow's weather",
+      "Mathematical propositions",
+      "Any system with a finite sample space"],
+    answer:[0],
+    why:"That qualifier is doing quiet work. For concrete repeatable systems you can envision how the frequencies are defined and check that they satisfy the axioms. Step outside that class and the semantics stop being tangible, which is the crack Module 2 lives in.",
+    src:"Koller &sect;2.1.1.3, book pp. 16-17" },
+  { type:"one",
+    q:"Cheeseman argues that a theory of uncertainty without numbers has what specific limitation?",
+    options:[
+      "It can say which option is most probable, but not that the most probable option is itself highly unlikely",
+      "It cannot rank options at all",
+      "It cannot represent evidence",
+      "It requires infinite computation"],
+    answer:[0],
+    why:"\"Most likely\" and \"likely\" are different claims, and a ranking cannot tell them apart. He does concede a case: if you must choose among fixed alternatives and no more evidence is available, ranking is enough.",
+    src:"Notes &sect;2.2.3 item 4 (2-6) &middot; Lecture 2B, slide 5" },
+  { type:"many",
+    q:"Which of these are described as ways of assigning prior probabilities?",
+    options:["Maximum entropy","The principle of indifference","Experimentation","Rejecting priors entirely as unscientific"],
+    answer:[0,1,2],
+    why:"Your notes list all three in &sect;2.2.6. The fourth is the position Cheeseman argues against: refusing to state a prior does not remove it, it hides it, and failure to use priors leads to erroneous conclusions especially when there are many possibilities.",
+    src:"Notes &sect;2.2.6 (2-8) and &sect;2.2.4 item 6 (2-8)" },
+  { type:"tf",
+    q:"Your lecture notes state that in probability, contradictory evidence must be rejected before the remaining evidence can be combined.",
+    answer:[1],
+    why:"False, and it is the reverse of what the notes say. \"In probability, contradictions do not occur. All the evidence is combined to get a final probability value, so there is no need to reject evidence, although evidence can be used to reject hypotheses.\"",
+    src:"Notes &sect;2.2.5 (2-8) &middot; Lecture 2C, slide 4" }
   ]
 }
 ];
 
+const BANKS = MODULES;
+
 const form = document.getElementById("quiz");
 const scoreBox = document.getElementById("score");
-const modTitle = document.getElementById("modtitle");
-const TAG = { one: "one answer", many: "select all", tf: "true / false", fill: "fill in" };
+const TAG = { one:"one answer", many:"select all", tf:"true / false", fill:"fill in" };
 
-let activeMod = 0;
-let order = [];
-let graded = false;
+let sel = [], mode = "sample", POOL = [], order = [], graded = false;
 
-function questions() { return MODULES[activeMod].questions; }
+function readURL() {
+  const q = new URLSearchParams(location.search);
+  const raw = (q.get("m") || q.get("module") || "").trim();
+  if (raw) {
+    sel = raw.split(/[,+ ]+/).map(v => parseInt(v, 10) - 1)
+             .filter(i => Number.isInteger(i) && i >= 0 && i < BANKS.length);
+  }
+  if (!sel.length) sel = [0];
+  mode = q.get("mode") === "all" ? "all" : "sample";
+}
+function syncURL() {
+  const q = new URLSearchParams();
+  q.set("m", sel.map(i => i + 1).join(","));
+  q.set("mode", mode);
+  const url = location.pathname + "?" + q.toString();
+  history.replaceState(null, "", url);
+  document.getElementById("permalink").innerHTML =
+    `Link to this set: <a href="${url}">${location.origin + url}</a>`;
+}
+function drawChips() {
+  document.getElementById("bankPick").innerHTML = BANKS.map((b, i) =>
+    `<button class="chip" data-i="${i}" aria-pressed="${sel.includes(i)}">${b.name.split(" - ")[0]}</button>`
+  ).join("");
+  document.querySelectorAll(".chip").forEach(c => c.onclick = () => {
+    const i = +c.dataset.i;
+    if (sel.includes(i)) { if (sel.length > 1) sel = sel.filter(v => v !== i); }
+    else sel = [...sel, i].sort((a, b) => a - b);
+    drawChips(); build();
+  });
+  document.querySelectorAll("#modeSeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode));
+}
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+function build() {
+  POOL = [];
+  sel.forEach(i => BANKS[i].questions.forEach(q => POOL.push({ ...q, bank: BANKS[i].name })));
+  order = POOL.map((_, i) => i);
+  if (mode === "sample") order = shuffle(order).slice(0, Math.min(10, order.length));
+  syncURL();
+  document.getElementById("poolInfo").textContent =
+    mode === "sample"
+      ? `${order.length} drawn at random from a bank of ${POOL.length}`
+      : `all ${POOL.length} questions`;
+  render();
+}
 
 function render() {
   graded = false;
@@ -376,38 +660,33 @@ function render() {
   document.getElementById("retry").hidden = true;
   document.getElementById("submit").disabled = false;
   document.getElementById("submit2").disabled = false;
-  modTitle.textContent = MODULES[activeMod].name + " · " + questions().length + " questions";
   form.innerHTML = "";
+  const multi = sel.length > 1;
 
   order.forEach((qi, n) => {
-    const q = questions()[qi];
+    const q = POOL[qi];
     const card = document.createElement("div");
-    card.className = "q";
-    card.dataset.qi = qi;
-
+    card.className = "q"; card.dataset.qi = qi;
     const head = document.createElement("div");
     head.className = "qhead";
-    head.innerHTML = `<span class="qnum">Question ${n + 1}</span><span class="tag">${TAG[q.type]}</span>`;
+    head.innerHTML = `<span class="qnum">Question ${n + 1}</span>` +
+      (multi ? `<span class="bankTag">${q.bank.split(" - ")[0]}</span>` : "") +
+      `<span class="tag">${TAG[q.type]}</span>`;
     card.appendChild(head);
-
     const text = document.createElement("p");
-    text.className = "qtext";
-    text.innerHTML = q.q;
+    text.className = "qtext"; text.innerHTML = q.q;
     card.appendChild(text);
 
     if (q.type === "fill") {
       const inp = document.createElement("input");
-      inp.type = "text";
-      inp.placeholder = "your answer";
-      inp.name = "q" + qi;
+      inp.type = "text"; inp.placeholder = "your answer"; inp.name = "q" + qi;
       card.appendChild(inp);
     } else {
       const opts = q.type === "tf" ? ["True", "False"] : q.options;
       const kind = q.type === "many" ? "checkbox" : "radio";
       opts.forEach((opt, oi) => {
         const lab = document.createElement("label");
-        lab.className = "opt";
-        lab.dataset.oi = oi;
+        lab.className = "opt"; lab.dataset.oi = oi;
         lab.innerHTML = `<input type="${kind}" name="q${qi}" value="${oi}"><span>${opt}</span>`;
         card.appendChild(lab);
       });
@@ -416,79 +695,58 @@ function render() {
   });
 }
 
-function normalize(s) {
-  return s.toLowerCase().trim().replace(/\s+/g, " ").replace(/[.?!]$/, "");
-}
+function normalize(s) { return s.toLowerCase().trim().replace(/\s+/g, " ").replace(/[.?!]$/, ""); }
 
 function grade() {
   if (graded) return;
   graded = true;
   let correct = 0;
-
   order.forEach(qi => {
-    const q = questions()[qi];
+    const q = POOL[qi];
     const card = form.querySelector(`[data-qi="${qi}"]`);
     let ok = false;
-
     if (q.type === "fill") {
       const inp = card.querySelector("input[type=text]");
       const given = normalize(inp.value);
-      ok = q.answer.some(a => {
-        const n = normalize(a);
-        return given === n || given === n + " space" || given === n + " theory";
-      });
+      ok = q.answer.some(a => { const n = normalize(a);
+        return given === n || given === n + " theory" || given === n + " space" || given === n + " parameter"; });
       inp.disabled = true;
       inp.style.borderColor = ok ? "var(--good)" : "var(--bad)";
-      if (!ok) {
-        const p = document.createElement("p");
-        p.className = "src";
-        p.innerHTML = `Correct answer: <b>${q.answer[0]}</b>`;
-        inp.after(p);
-      }
+      if (!ok) { const p = document.createElement("p"); p.className = "src";
+        p.innerHTML = `Correct answer: <b>${q.answer[0]}</b>`; inp.after(p); }
     } else {
       const picked = [...card.querySelectorAll("input:checked")].map(i => +i.value);
       ok = picked.length === q.answer.length && picked.every(p => q.answer.includes(p));
       card.querySelectorAll("label.opt").forEach(lab => {
         const oi = +lab.dataset.oi;
         lab.querySelector("input").disabled = true;
-        const isAnswer = q.answer.includes(oi);
-        const chosen = picked.includes(oi);
-        if (isAnswer) {
-          lab.classList.add("correct");
-          const m = document.createElement("span");
-          m.className = "mark g";
-          m.textContent = chosen ? "correct" : "correct answer";
-          lab.appendChild(m);
-        } else if (chosen) {
-          lab.classList.add("wrong");
-          const m = document.createElement("span");
-          m.className = "mark b";
-          m.textContent = "your answer";
-          lab.appendChild(m);
-        }
+        const isAns = q.answer.includes(oi), chosen = picked.includes(oi);
+        if (isAns) { lab.classList.add("correct");
+          const m = document.createElement("span"); m.className = "mark g";
+          m.textContent = chosen ? "correct" : "correct answer"; lab.appendChild(m); }
+        else if (chosen) { lab.classList.add("wrong");
+          const m = document.createElement("span"); m.className = "mark b";
+          m.textContent = "your answer"; lab.appendChild(m); }
       });
     }
-
     if (ok) correct++;
-
     const why = document.createElement("div");
     why.className = "why";
     why.innerHTML = `<b>${ok ? "Correct" : "Not quite"}</b>${q.why}<div class="src">${q.src}</div>`;
     card.appendChild(why);
   });
 
-  const total = order.length;
-  const pct = Math.round((correct / total) * 100);
+  const total = order.length, pct = Math.round(correct / total * 100);
   scoreBox.hidden = false;
   scoreBox.innerHTML = `
-    <h2>${MODULES[activeMod].name.split(" - ")[0]} score</h2>
+    <h2>${sel.map(i => BANKS[i].name.split(" - ")[0]).join(" + ")}</h2>
     <div class="pct">${correct} / ${total} &middot; ${pct}%</div>
     <div class="bar"><div></div></div>
     <div class="breakdown">${
-      pct === 100 ? "Every one. Nothing left to review."
+      pct === 100 ? "Every one. Draw another set to be sure it wasn't the luck of the shuffle."
       : pct >= 80 ? "Solid. Read back over the ones you missed."
-      : pct >= 50 ? "Worth another pass through the notes for this module."
-      : "Start with the lecture notes before retrying."
+      : pct >= 50 ? "Worth another pass through the notes before the next draw."
+      : "Start with the source material, then come back."
     }</div>`;
   requestAnimationFrame(() => { scoreBox.querySelector(".bar > div").style.width = pct + "%"; });
   document.getElementById("retry").hidden = false;
@@ -497,31 +755,17 @@ function grade() {
   scoreBox.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function load(mod, shuffle) {
-  activeMod = mod;
-  order = questions().map((_, i) => i);
-  if (shuffle) {
-    for (let i = order.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [order[i], order[j]] = [order[j], order[i]];
-    }
-  }
-  render();
-}
-
-document.querySelectorAll(".tab").forEach(tab => {
-  tab.onclick = () => {
-    document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", t === tab));
-    load(+tab.dataset.mod, false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-});
 document.getElementById("submit").onclick = grade;
 document.getElementById("submit2").onclick = grade;
-document.getElementById("retry").onclick = () => { load(activeMod, false); window.scrollTo({ top: 0, behavior: "smooth" }); };
-document.getElementById("shuffle").onclick = () => { load(activeMod, true); window.scrollTo({ top: 0, behavior: "smooth" }); };
+document.getElementById("retry").onclick = () => { render(); window.scrollTo({ top: 0, behavior: "smooth" }); };
+document.getElementById("newSet").onclick = () => { build(); window.scrollTo({ top: 0, behavior: "smooth" }); };
+document.getElementById("modeSeg").onclick = e => {
+  const b = e.target.closest("button"); if (!b) return;
+  mode = b.dataset.mode; drawChips(); build();
+};
 
-load(0, false);
+readURL(); drawChips(); build();
+
 </script>
 </body>
 </html>
