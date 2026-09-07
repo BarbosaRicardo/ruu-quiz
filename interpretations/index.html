@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interpretations Workbench</title>
+<style>
+  :root {
+    --bg:#f7f7f5; --panel:#fff; --ink:#1c1c1a; --muted:#6b6b66; --line:#dedcd6;
+    --accent:#2f5d8a; --accent-soft:#e8f0f7; --warm:#b5651d; --warm-soft:#fbf0e4;
+    --good:#2f6b45; --good-soft:#e7f2ea; --bad:#8a3232; --bad-soft:#f7e9e9; --grid:#e6e4de;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#17181a; --panel:#202225; --ink:#e8e8e4; --muted:#9b9b95; --line:#34363a;
+      --accent:#7fb0dd; --accent-soft:#23303c; --warm:#e0a45e; --warm-soft:#2f2619;
+      --good:#7fc79a; --good-soft:#1f2f26; --bad:#e08b8b; --bad-soft:#332323; --grid:#2b2d31;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#17181a; --panel:#202225; --ink:#e8e8e4; --muted:#9b9b95; --line:#34363a;
+    --accent:#7fb0dd; --accent-soft:#23303c; --warm:#e0a45e; --warm-soft:#2f2619;
+    --good:#7fc79a; --good-soft:#1f2f26; --bad:#e08b8b; --bad-soft:#332323; --grid:#2b2d31;
+  }
+  * { box-sizing:border-box; }
+  body { background:var(--bg); color:var(--ink); margin:0; padding:0 20px 90px;
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap { max-width:820px; margin:0 auto; }
+  header { padding:40px 0 0; }
+  h1 { font-size:26px; margin:0 0 6px; letter-spacing:-0.015em; }
+  .sub { color:var(--muted); font-size:14px; margin:0 0 24px; }
+  .tabs { display:flex; gap:4px; border-bottom:1px solid var(--line); margin-bottom:26px; flex-wrap:wrap; }
+  .tab { font:inherit; font-size:15px; padding:10px 16px; cursor:pointer; background:none;
+    border:none; border-bottom:2px solid transparent; color:var(--muted); margin-bottom:-1px; }
+  .tab:hover { color:var(--ink); }
+  .tab[aria-selected="true"] { color:var(--accent); border-bottom-color:var(--accent); font-weight:600; }
+  h2 { font-size:20px; margin:0 0 12px; letter-spacing:-0.01em; }
+  h3 { font-size:15px; margin:28px 0 10px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600; }
+
+  .story { background:var(--warm-soft); border-left:3px solid var(--warm); border-radius:0 10px 10px 0;
+    padding:18px 20px; margin-bottom:22px; }
+  .story .label { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--warm); font-weight:700; margin-bottom:8px; }
+  .story p { margin:0 0 12px; } .story p:last-child { margin:0; }
+
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:11px; padding:20px 22px; margin-bottom:16px; }
+  .card .nm { font-size:12px; text-transform:uppercase; letter-spacing:.07em; color:var(--accent); font-weight:700; margin-bottom:8px; }
+  .card h4 { margin:0 0 10px; font-size:18px; }
+  canvas { width:100%; display:block; border-radius:8px; }
+  .ctl { display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-top:16px; }
+  button.act { font:inherit; font-size:14px; padding:8px 16px; border-radius:7px;
+    border:1px solid var(--line); background:var(--bg); color:var(--ink); cursor:pointer; }
+  button.act:hover { border-color:var(--accent); }
+  button.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .seg { display:flex; border:1px solid var(--line); border-radius:7px; overflow:hidden; }
+  .seg button { font:inherit; font-size:13px; padding:7px 14px; border:none; background:var(--bg); color:var(--muted); cursor:pointer; }
+  .seg button[aria-pressed="true"] { background:var(--accent); color:#fff; }
+  .readout { font-size:14px; color:var(--muted); margin-top:12px; font-variant-numeric:tabular-nums; }
+  .readout b { color:var(--ink); }
+  .verdict { margin-top:12px; font-size:14px; padding:11px 14px; border-radius:7px; background:var(--accent-soft); }
+
+  .ladder { display:grid; gap:10px; margin:18px 0; }
+  .rung { background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--line);
+    border-radius:0 10px 10px 0; padding:16px 18px; cursor:pointer; }
+  .rung:hover { border-color:var(--accent); }
+  .rung .top { display:flex; align-items:baseline; gap:10px; }
+  .rung h4 { margin:0; font-size:17px; }
+  .rung .pill { margin-left:auto; font-size:11px; text-transform:uppercase; letter-spacing:.06em;
+    padding:3px 9px; border-radius:20px; font-weight:700; }
+  .rung .meter { height:6px; background:var(--grid); border-radius:4px; margin:10px 0 0; overflow:hidden; }
+  .rung .meter > div { height:100%; border-radius:4px; }
+  .rung .body { margin-top:12px; font-size:15px; }
+  .rung .body[hidden] { display:none; }
+
+  ul.notice { margin:0; padding-left:20px; } ul.notice li { margin-bottom:9px; }
+  .gotcha { margin-top:12px; font-size:14px; color:var(--muted); border-top:1px solid var(--line); padding-top:10px; }
+  .gotcha b { color:var(--bad); }
+  .verdictline { font-size:14px; margin-top:10px; padding:10px 13px; border-radius:7px; background:var(--bad-soft); }
+  .verdictline b { color:var(--bad); }
+  .src { color:var(--muted); font-size:13px; margin-top:18px; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Interpretations Workbench</h1>
+  <p class="sub">EN.605.745 Reasoning Under Uncertainty &middot; Module 2 &middot; what a probability actually <i>is</i></p>
+  <p class="sub" style="margin:-14px 0 18px"><a href="../workbench/" style="color:var(--accent)">&rarr; Module 1: Probability Workbench</a> &nbsp;&middot;&nbsp; <a href="../" style="color:var(--accent)">&rarr; Practice quiz</a></p>
+  <div class="tabs" role="tablist">
+    <button class="tab" data-p="0" aria-selected="true">Two interpretations</button>
+    <button class="tab" data-p="1" aria-selected="false">Cox's ladder</button>
+    <button class="tab" data-p="2" aria-selected="false">The rivals</button>
+    <button class="tab" data-p="3" aria-selected="false">Misconceptions</button>
+  </div>
+</header>
+
+<!-- ============ 1. INTERPRETATIONS ============ -->
+<section id="p0">
+  <h2>Frequency, or degree of belief?</h2>
+  <div class="story">
+    <div class="label">The story</div>
+    <p>Module 1 taught you to <i>calculate</i> with probability. Module 2 asks the question you skipped: when you write P(A) = 0.3, what is the 0.3 <b>made of</b>?</p>
+    <p>There are two answers and they have been fighting since the nineteenth century. The <b>frequentist</b> says 0.3 is a count: run the experiment forever, and 30% of the runs come out A. Clean, objective, checkable. The <b>subjectivist</b> says 0.3 is a state of mind: it is how strongly a reasoner believes A, given what they know.</p>
+    <p>Here is the demo. Flip the coin below a few thousand times and watch the running frequency crawl toward 0.5. That wobbling line settling down <i>is</i> the frequentist definition, made of actual counted events. It is beautiful, and when it works there is nothing to argue about.</p>
+    <p>Now try the second button. "It will rain tomorrow afternoon." Go on, run it a thousand times. You cannot. Tomorrow afternoon happens <b>once</b>, and then it is over forever. There is no ensemble, no long run, nothing to count. And yet you have a real opinion about rain, you would take a bet on it, and your opinion would change if you saw a forecast. That opinion is a probability that no amount of counting will ever produce.</p>
+    <p>That is the crack Module 2 lives in. Cheeseman argues the crack is fatal for frequentism as a <i>general</i> theory. Cox goes further and argues you can derive the whole apparatus from reasonable expectation without counting anything.</p>
+  </div>
+
+  <div class="card">
+    <canvas id="cvC" height="290"></canvas>
+    <div class="ctl">
+      <button class="act primary" id="cvFlip">Flip 100 more</button>
+      <button class="act" id="cvRun">Flip 2,000</button>
+      <button class="act" id="cvReset">Reset</button>
+      <div class="seg" id="cvMode">
+        <button data-m="0" aria-pressed="true">Coin toss</button>
+        <button data-m="1" aria-pressed="false">Rain tomorrow afternoon</button>
+      </div>
+    </div>
+    <div class="readout" id="cvOut"></div>
+    <div class="verdict" id="cvVerdict"></div>
+  </div>
+
+  <h3>What to notice</h3>
+  <ul class="notice">
+    <li>The early flips swing wildly. At n = 10 you might read 0.8 and conclude the coin is loaded. Frequentism is only well-behaved <b>in the limit</b>, and you never actually get to the limit.</li>
+    <li>Switch to rain and the chart refuses to draw a curve, because there is nothing to draw. Your notes put it exactly this way: "no one has ten years of data on a grid that doesn't exist yet." Koller makes the identical point on book p. 17 with this same example.</li>
+    <li>Koller's escape hatch is the <b>reference class</b>: find similar-enough events and count those instead. He then admits "none of them has proved entirely satisfactory." Similar to <i>what</i>? Afternoons in this city? In March? After a dry January? Every answer gives a different number.</li>
+    <li>Cheeseman's corollaries push harder still: there is no such thing as <i>the</i> probability of a proposition, because the value depends on the evidence used to derive it. Two observers with different information assign different probabilities, and neither is wrong.</li>
+  </ul>
+  <p class="src">Notes &sect;1.3.2 (1-3), &sect;2.2.3 (2-5), &sect;2.3.1 (2-9) &middot; Lecture 2D &middot; Koller &sect;2.1.1.3, book pp. 16-17</p>
+</section>
+
+<!-- ============ 2. COX'S LADDER ============ -->
+<section id="p1" hidden>
+  <h2>Cox's ladder</h2>
+  <div class="story">
+    <div class="label">The story</div>
+    <p>Cox does something cleverer than declaring one side right. He builds a <b>staircase</b> of four questions, and walks you down it. At the top, frequency works perfectly. At the bottom, frequency is not merely difficult but <i>meaningless</i>. And crucially, there is no step where it obviously breaks. It fades.</p>
+    <p>That gradualness is the argument. If there were a clean line you could just work on the frequency side of it. There isn't. So a theory that only covers the top of the staircase is not a general theory of reasoning, it is a special case that got mistaken for one.</p>
+    <p>Click each rung. The bar is how much of a genuine ensemble you can lay your hands on.</p>
+  </div>
+  <div class="ladder" id="ladder"></div>
+  <div class="card" style="background:var(--accent-soft);border-color:var(--accent)">
+    <div class="nm">Where it lands</div>
+    <p style="margin:0 0 10px">"There is a field of probable inference which lies outside the range of that theory. The derivation of the rules of probability by ordinary algebra from the characteristics of the ensemble cannot justify the use of these rules in this outside field." &mdash; R. T. Cox</p>
+    <p style="margin:0">And the twist your notes flag: cases where an ensemble genuinely exists are <b>exceedingly rare</b> compared to everything one might reason about. The top rung is the exception, not the rule. Cox's kicker is that the frequency definition does not even suffice to connect statistical mechanics to thermodynamics &mdash; failing inside physics, where you would most expect it to hold.</p>
+  </div>
+  <p class="src">Notes &sect;2.3.2.1 (2-10) and &sect;2.3.3 (2-11) &middot; Lecture 2D slides 6-11 &middot; Cox 1946</p>
+</section>
+
+<!-- ============ 3. THE RIVALS ============ -->
+<section id="p2" hidden>
+  <h2>The rivals</h2>
+  <div class="story">
+    <div class="label">The story</div>
+    <p>Picture AI research in the 1970s and 80s as a town that decided probability had failed, and started building replacements in its garages. Six of them are on Cheeseman's list. Some are genuinely clever. All of them, he argues, are solving a problem that did not exist.</p>
+    <p>Koller tells you why the town turned, on book p. 13: probabilistic methods "fell into disfavor," partly on the belief that "people do not manipulate numbers when reasoning," and partly because early expert systems made crushing independence assumptions and there was no flexible way to represent interactions. So the rejection was not stupidity. It was a real limitation, misdiagnosed as a fatal one, and it took graphical models to fix the actual problem.</p>
+    <p>Cheeseman's verdict on the replacements is blunt: they "largely lacked formal semantics," in Koller's phrase. They produce a number, and nobody can say what the number <i>means</i>.</p>
+  </div>
+  <div id="rivals"></div>
+  <p class="src">Notes &sect;2.2.1 (2-2 to 2-4) &middot; Lecture 2A &middot; Koller &sect;1.4 Historical Notes, book p. 13</p>
+</section>
+
+<!-- ============ 4. MISCONCEPTIONS ============ -->
+<section id="p3" hidden>
+  <h2>Six misconceptions</h2>
+  <div class="story">
+    <div class="label">The story</div>
+    <p>Cheeseman's core move: nearly every objection to probability is really an objection to <b>frequentism</b>, aimed at the wrong target. Swap in "measure of belief given evidence" and most of them evaporate on the spot.</p>
+  </div>
+  <div id="misc"></div>
+
+  <h3>The North Atlantic ship, drawn</h3>
+  <div class="card">
+    <p style="margin:0 0 4px">A ship is somewhere in the North Atlantic, which is roughly diamond-shaped. You know nothing else. Assign a "uniform" prior &mdash; but uniform along <b>which dimension</b>?</p>
+    <div class="ctl" style="margin-bottom:14px">
+      <div class="seg" id="shMode">
+        <button data-m="0" aria-pressed="true">Uniform over area</button>
+        <button data-m="1" aria-pressed="false">Uniform over latitude</button>
+      </div>
+    </div>
+    <canvas id="shC" height="300"></canvas>
+    <div class="verdict" id="shOut"></div>
+  </div>
+  <ul class="notice" style="margin-top:16px">
+    <li>Flip between the two. Both are called "uniform." Both claim to encode "I know nothing." They are <b>different distributions</b> and they disagree about where the ship is.</li>
+    <li>Uniform over area is intuitive and puts more probability near the equator, simply because the diamond is fat there. Uniform over latitude spreads it evenly across bands, which forces the density <i>higher</i> near the narrow poles.</li>
+    <li>So the principle of indifference from Module 1 (Definition 1.5) is not the absence of an assumption. Choosing the dimension you are indifferent along <b>is</b> the assumption, and there is no neutral choice available.</li>
+    <li>Cheeseman's conclusion is not "avoid priors." It is that in real problems, rich domain knowledge usually gives you non-uniform priors anyway, even when you are unsure of their exact values. Refusing to state a prior does not make you objective; it makes you silent about a choice you made regardless.</li>
+  </ul>
+  <p class="src">Notes &sect;2.2.3 (2-5 to 2-7) and Figure 2.2 &middot; Lecture 2B</p>
+</section>
+
+</div>
+
+<script>
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function fit(c){ const r=window.devicePixelRatio||1, w=c.clientWidth, h=+c.getAttribute("height");
+  c.width=w*r; c.height=h*r; const x=c.getContext("2d"); x.setTransform(r,0,0,r,0,0); return {x,w,h}; }
+
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
+  document.querySelectorAll(".tab").forEach(o => o.setAttribute("aria-selected", o===t));
+  [0,1,2,3].forEach(i => document.getElementById("p"+i).hidden = (+t.dataset.p !== i));
+  cvDraw(); shDraw();
+  window.scrollTo({top:0,behavior:"smooth"});
+});
+
+/* ---------- coin convergence ---------- */
+const CV = { n:0, heads:0, hist:[], mode:0 };
+const cv = id => document.getElementById(id);
+function cvFlip(k){
+  if (CV.mode === 1) return;
+  for (let i=0;i<k;i++){ CV.n++; if (Math.random()<0.5) CV.heads++;
+    if (CV.n<=40 || CV.n%2===0) CV.hist.push({n:CV.n, f:CV.heads/CV.n}); }
+  cvDraw();
+}
+function cvDraw(){
+  const c = cv("cvC"); if (!c.clientWidth) return;
+  const {x,w,h} = fit(c), pad={l:50,r:16,t:16,b:34};
+  x.clearRect(0,0,w,h);
+  if (CV.mode === 1){
+    x.fillStyle = css("--muted"); x.textAlign="center";
+    x.font = "15px -apple-system,sans-serif";
+    x.fillText("There is no curve to draw.", w/2, h/2 - 26);
+    x.font = "13px -apple-system,sans-serif";
+    x.fillText("Tomorrow afternoon happens exactly once, then never again.", w/2, h/2);
+    x.fillText("n = 1, and the long run does not exist.", w/2, h/2 + 22);
+    x.strokeStyle = css("--line"); x.setLineDash([5,5]);
+    x.strokeRect(pad.l, pad.t, w-pad.l-pad.r, h-pad.t-pad.b); x.setLineDash([]);
+    cv("cvOut").innerHTML = `trials possible: <b>1</b> &nbsp; relative frequency: <b>undefined</b>`;
+    cv("cvVerdict").innerHTML = "Koller, book p. 17: \"the frequentist approach does not provide a satisfactory interpretation for a statement such as 'the probability of rain tomorrow afternoon is 0.3.'\" You still have a belief about it. That belief is the subjective interpretation, and it is the only one available here.";
+    return;
+  }
+  const maxN = Math.max(60, CV.n);
+  x.strokeStyle = css("--grid");
+  [0,.25,.5,.75,1].forEach(v=>{ const yy = (h-pad.b)-(v)*(h-pad.t-pad.b);
+    x.beginPath(); x.moveTo(pad.l,yy); x.lineTo(w-pad.r,yy); x.stroke();
+    x.fillStyle=css("--muted"); x.font="11px -apple-system,sans-serif"; x.textAlign="right";
+    x.fillText(v.toFixed(2), pad.l-7, yy+4); });
+  x.strokeStyle=css("--muted"); x.beginPath();
+  x.moveTo(pad.l,pad.t); x.lineTo(pad.l,h-pad.b); x.lineTo(w-pad.r,h-pad.b); x.stroke();
+  x.fillStyle=css("--muted"); x.textAlign="center"; x.font="12px -apple-system,sans-serif";
+  x.fillText("number of flips", (pad.l+w-pad.r)/2, h-8);
+
+  const X = n => pad.l + (Math.log10(Math.max(n,1))/Math.log10(Math.max(maxN,10)))*(w-pad.l-pad.r);
+  const Y = f => (h-pad.b) - f*(h-pad.t-pad.b);
+  x.strokeStyle = css("--good"); x.setLineDash([5,4]); x.lineWidth=1.5;
+  x.beginPath(); x.moveTo(pad.l, Y(0.5)); x.lineTo(w-pad.r, Y(0.5)); x.stroke(); x.setLineDash([]);
+  x.fillStyle=css("--good"); x.textAlign="left"; x.fillText("true 0.5", pad.l+6, Y(0.5)-6);
+
+  if (CV.hist.length){
+    x.strokeStyle=css("--warm"); x.lineWidth=2; x.beginPath();
+    CV.hist.forEach((p,i)=>{ i?x.lineTo(X(p.n),Y(p.f)):x.moveTo(X(p.n),Y(p.f)); }); x.stroke();
+  }
+  const f = CV.n ? CV.heads/CV.n : 0;
+  cv("cvOut").innerHTML = `flips: <b>${CV.n.toLocaleString()}</b> &nbsp; heads: <b>${CV.heads.toLocaleString()}</b> &nbsp; relative frequency: <b>${CV.n?f.toFixed(4):"—"}</b> &nbsp; error from 0.5: <b>${CV.n?Math.abs(f-0.5).toFixed(4):"—"}</b>`;
+  cv("cvVerdict").innerHTML = CV.n === 0
+    ? "Nothing flipped yet. The frequentist definition says the probability <i>is</i> the limit this line converges to."
+    : CV.n < 50 ? "Wildly unstable. At small n the relative frequency is nearly useless, which is why frequentism is defined in the limit rather than at any actual sample size."
+    : CV.n < 800 ? "Settling down. This is the frequentist definition being manufactured in front of you, out of counted events."
+    : "Converged to within a whisker of 0.5. This is exactly the case frequentism handles beautifully: a concrete physical system, repeatable indefinitely. Koller calls these \"tangible semantics.\"";
+}
+cv("cvFlip").onclick = () => cvFlip(100);
+cv("cvRun").onclick = () => cvFlip(2000);
+cv("cvReset").onclick = () => { CV.n=0; CV.heads=0; CV.hist=[]; cvDraw(); };
+cv("cvMode").onclick = e => { const b=e.target.closest("button"); if(!b) return;
+  CV.mode=+b.dataset.m; [...e.currentTarget.children].forEach(o=>o.setAttribute("aria-pressed",o===b)); cvDraw(); };
+
+/* ---------- Cox's ladder ---------- */
+const RUNGS = [
+{ t:"1 · Tossing a coin", pct:100, col:"--good", pill:"frequency works",
+  b:"<p>What is the chance the number of heads in n tosses falls between two limits? Toss it again. And again. The ensemble is <b>free</b>, unlimited, and obviously the right one.</p><p>Cox's subtlety: the <i>score</i> of a coin-tossing experiment genuinely varies from trial to trial in time. There is real randomness to count. This is frequentism at its strongest, and nobody needs a philosophy lecture to use it.</p>" },
+{ t:"2 · The value of the Joule equivalent", pct:64, col:"--accent", pill:"ensemble imagined",
+  b:"<p>What is the chance the true value of a physical constant lies between two limits? Now look closely, because something has changed. <b>The constant does not vary.</b> It has one value and always did. The only thing varying is <i>your measurement error</i>.</p><p>So you rescue frequency by shifting what the ensemble is made of: imagine an ensemble of <i>measurements</i>, treat yours as a random sample from it, and the arithmetic from rung 1 carries over. It works, provided there are no systematic errors. But notice you are now counting a hypothetical population that you invented, not one you observed.</p>" },
+{ t:"3 · The reciprocal fine-structure constant", pct:30, col:"--warm", pill:"straining",
+  b:"<p>Same shape of question, harder to answer. The uncertainty here is less about repeatable measurement noise and more about incomplete physical theory. What exactly would you be sampling from? An ensemble of universes? An ensemble of theories?</p><p>The frequency story does not shatter here. It just gets steadily less convincing, and you find yourself doing more inventing and less counting.</p>" },
+{ t:"4 · Writing a large number as a sum of cubes", pct:4, col:"--bad", pill:"frequency meaningless",
+  b:"<p>It is proved that every integer is the sum of nine or fewer cubes, and beyond a certain point, fewer still. For a specific large number, the claim is either <b>true or it is false</b>. There is nothing random about it. Mathematics does not roll dice.</p><p>And yet a number theorist absolutely has a degree of belief about it, will revise that belief on new evidence, and will bet on it. That belief obeys the rules of probability. But there is no ensemble, not even a hypothetical one, and no measurement error to hide behind. Frequency is not hard here. It is <b>meaningless</b>.</p>" }
+];
+document.getElementById("ladder").innerHTML = RUNGS.map((r,i)=>`
+  <div class="rung" data-i="${i}" style="border-left-color:var(${r.col})">
+    <div class="top">
+      <h4>${r.t}</h4>
+      <span class="pill" style="background:var(${r.col});color:#fff">${r.pill}</span>
+    </div>
+    <div class="meter"><div style="width:${r.pct}%;background:var(${r.col})"></div></div>
+    <div class="body" hidden>${r.b}</div>
+  </div>`).join("");
+document.querySelectorAll(".rung").forEach(r => r.onclick = () => {
+  const b = r.querySelector(".body"); b.hidden = !b.hidden;
+});
+
+/* ---------- rivals ---------- */
+const RIVALS = [
+{ n:"Non-monotonic logic", s:"<p>Ordinary logic is a ratchet: once a thing is proved it stays proved, forever. Real reasoning is not like that. You believe the pet is a bird, you believe birds fly, then you learn it is a penguin and you have to <b>take a conclusion back</b>. Non-monotonic logic is the machinery for retracting.</p><p>The famous break is the Nixon diamond. Quakers are pacifists. Republicans are not. Nixon is both. The two rules fire, they cancel, and the system simply stops, with no way to say which pull is <i>stronger</i>.</p>",
+  v:"Probability never gets stuck here. It weighs the evidence and returns a number. Refusing to have degrees means having no way to break a tie." },
+{ n:"Default logic", s:"<p>An extension: assume the typical case unless told otherwise. Birds fly, so a condor flies, because nothing you know contradicts it. A penguin does not, because the justification clashes with what you already know.</p><p>Note the trap the quiz likes: <code>Bird(Penguin)</code> is perfectly true, so it is <b>not</b> the precondition that fails. It is the justification.</p>",
+  v:"It works, until you need to know <i>how</i> typical. \"Birds typically fly\" cannot distinguish 99% from 51%, and those call for different decisions." },
+{ n:"Certainty factors", s:"<p>Bolt a confidence number onto each rule of an expert system and combine them with a homemade calculus. Sherlock Holmes gets a call from Watson, a notorious joker, saying his burglar alarm is sounding: certainty 0.5. He calls the reliable Mrs Gibbons: certainty 0.9.</p><p>This is the MYCIN lineage, and it was genuinely useful in the clinic before anyone could make Bayesian networks run.</p>",
+  v:"The numbers have no semantics. Nobody can say what a 0.5 <i>is</i>, so nobody can say whether the combining rule is correct, only whether it feels right." },
+{ n:"Dempster-Shafer theory", s:"<p>The clever one. Instead of putting mass on each <i>element</i> of &Omega;, put it on each <b>subset</b>. That lets you say \"I have 0.6 belief it is one of {A, B} and I refuse to split it further,\" which is a real thing a witness might mean.</p><p>Every statement then carries two numbers, belief and plausibility, bracketing what you are committed to.</p>",
+  v:"Cheeseman's counter is the point-mass analogy: in mechanics a whole body can be replaced by a point mass at its centre of gravity and give identical results. How many numbers you need depends on the question you are asking. If more evidence is not available, one number is enough &mdash; and Dempster-Shafer forces you to carry two regardless." },
+{ n:"Confirmation theory", s:"<p>Only count a hypothesis as confirmed once the evidence clears a threshold. E confirms H if P(H|E) exceeds P(H). Sensible-sounding, and it does capture something about how scientists talk.</p>",
+  v:"It throws away the magnitude. \"Confirmed\" collapses a rich number into a yes or no, and the threshold is arbitrary. Cheeseman's separate complaint bites here too: the most probable option can still be wildly unlikely, and a system that only ranks cannot tell you that." },
+{ n:"Fuzzy logic", s:"<p>Truth values anywhere in [0, 1] rather than just 0 or 1, for handling <i>vagueness</i>. Is a 5'11\" person tall? Not true, not false, about 0.6 tall.</p><p>Worth being careful here, because this is the one most often confused with probability. \"0.6 tall\" is not \"60% chance of being tall.\" One is about a fuzzy boundary in the concept, the other about uncertainty over a sharp fact.</p>",
+  v:"Your course gives fuzzy logic an entire module of its own later, so this is not a dismissal. Cheeseman's narrower claim is that it is not needed for <i>uncertain inference</i>, which is a different job from representing vagueness." }
+];
+document.getElementById("rivals").innerHTML = RIVALS.map(r=>`
+  <div class="card">
+    <div class="nm">Rival scheme</div>
+    <h4>${r.n}</h4>
+    ${r.s}
+    <div class="verdictline"><b>Cheeseman's objection:</b> ${r.v}</div>
+  </div>`).join("");
+
+/* ---------- misconceptions ---------- */
+const MISC = [
+{ n:"1 · Probability is a frequency ratio", b:"<p>This is the root of all the others. Replace it with the definition Cheeseman actually wants &mdash; the probability of a proposition given particular evidence is a real number in [0,1] measuring an entity's belief &mdash; and most of the remaining objections stop making sense.</p><p>Three corollaries follow, and they are quiz bait: there is no such thing as <i>the</i> probability of a proposition; different observers with different evidence assign different values; and probabilities are subjective in that they depend on the believer's information, yet objective in that two ideal believers with the <b>same</b> information must agree.</p>", g:"That last clause is what stops subjectivism from collapsing into \"anything goes.\"" },
+{ n:"2 · Bayesian analysis requires vast amounts of data", b:"<p>Only if probability is a frequency ratio. A doctor estimating whether this patient has this infection given these symptoms will never have a large reference class of identical patients &mdash; usually the class has one member, sitting in front of them.</p><p>The real problem is not too little data for a frequency; it is that the available information does not pin down the conditional. You close the gap with assumptions, most commonly <b>conditional independence</b>, which belongs to the maximum entropy family.</p>", g:"Straight back to Module 1. Conditional independence is the assumption that makes the arithmetic possible, and the one most likely to be false." },
+{ n:"3 · Priors assume more information than you have", b:"<p>The North Atlantic ship, drawn below. The short version: there is no way to be neutral. Uniform along one dimension forces non-uniform along another, so declaring \"I assume nothing\" is itself a substantive assumption you made without noticing.</p>", g:"Refusing to state a prior does not remove it. It hides it." },
+{ n:"4 · Numbers are not necessary", b:"<p>Without numbers the best a system can say is \"this is the most probable option.\" It cannot tell you that the most probable option is itself <b>wildly unlikely</b> &mdash; which happens constantly and changes what you should do.</p><p>Cheeseman does concede a case: if you are choosing among a fixed set of alternatives and can gather no more evidence, ranking is enough.</p>", g:"\"Most likely\" and \"likely\" are different claims. A ranking cannot tell them apart." },
+{ n:"5 · One number cannot represent uncertainty", b:"<p>The point-mass analogy from mechanics: a complex body can be replaced by a point mass at its centre of gravity and give the same results. Same for a point probability standing in for a density.</p><p>How many numbers you need is set by the question you are asking, not by a general law. If getting more evidence is not an option, one number does the job.</p>", g:"Aimed squarely at Dempster-Shafer, which always makes you carry belief and plausibility." },
+{ n:"6 · Bayes doesn't work, so here is a new scheme", b:"<p>New schemes rarely come with a model theory connecting real data to the internal representation, and then out to a decision. Without that, and having rejected priors, they produce misleading conclusions.</p><p>The Streptococcus example: a rule gives 0.7 for the hypothesis given three observations. It looks like a conditional probability. It is not, because you cannot conclude the complement is 0.3. The evidence counts <i>for</i> the hypothesis only, so evidence for and against must be gathered separately.</p>", g:"If your 0.7 does not force a 0.3, it is not a probability, whatever it is printed next to." }
+];
+document.getElementById("misc").innerHTML = MISC.map(m=>`
+  <div class="card"><div class="nm">Misconception</div><h4>${m.n}</h4>${m.b}
+  <div class="gotcha"><b>Keep this:</b> ${m.g}</div></div>`).join("");
+
+/* ---------- ship ---------- */
+let shMode = 0;
+function shDraw(){
+  const c = document.getElementById("shC"); if (!c || !c.clientWidth) return;
+  const {x,w,h} = fit(c);
+  x.clearRect(0,0,w,h);
+  const left = 30, right = w*0.62, top = 20, bot = h-40;
+  const midY = (top+bot)/2, cx = (left+right)/2, halfW = (right-left)/2;
+  const halfAt = y => halfW * (1 - Math.abs(y-midY)/((bot-top)/2));
+
+  const bands = 44, bh = (bot-top)/bands;
+  let maxDens = 0;
+  const dens = [];
+  for (let i=0;i<bands;i++){
+    const y = top + (i+0.5)*bh, hw = Math.max(halfAt(y), 0.001);
+    const d = shMode === 0 ? hw : 1;
+    dens.push({y, hw, d}); maxDens = Math.max(maxDens, d/(hw||1));
+  }
+  const tot = dens.reduce((t,b)=>t+b.d,0);
+  dens.forEach(b=>{
+    const perArea = (b.d/tot)/(b.hw*2);
+    const inten = Math.min(perArea/ (dens.reduce((m,q)=>Math.max(m,(q.d/tot)/(q.hw*2)),0)), 1);
+    x.fillStyle = css("--accent");
+    x.globalAlpha = 0.15 + 0.8*inten;
+    x.fillRect(cx-b.hw, b.y-bh/2, b.hw*2, bh+0.6);
+  });
+  x.globalAlpha=1;
+  x.strokeStyle = css("--ink"); x.lineWidth=1.5;
+  x.beginPath(); x.moveTo(cx,top); x.lineTo(right,midY); x.lineTo(cx,bot); x.lineTo(left,midY); x.closePath(); x.stroke();
+  x.fillStyle = css("--muted"); x.font="12px -apple-system,sans-serif"; x.textAlign="center";
+  x.fillText("pole", cx, top-6); x.fillText("pole", cx, bot+16); x.fillText("equator", left-2, midY+4);
+
+  const bx = right+34, bw = w-bx-10;
+  x.fillStyle=css("--muted"); x.textAlign="left"; x.fillText("P per latitude band", bx, top-6);
+  const mx = Math.max(...dens.map(b=>b.d));
+  dens.forEach(b=>{ x.fillStyle=css("--warm"); x.globalAlpha=.85;
+    x.fillRect(bx, b.y-bh/2, (b.d/mx)*bw, bh-0.8); });
+  x.globalAlpha=1;
+
+  document.getElementById("shOut").innerHTML = shMode === 0
+    ? "<b>Uniform over area.</b> Every square mile is equally likely, so the fat equatorial bands hold far more total probability than the narrow polar ones. Intuitive &mdash; and it implies a strongly <i>non</i>-uniform distribution over latitude."
+    : "<b>Uniform over latitude.</b> Every latitude band holds equal probability, which is what you would assume after being told the ship moved to some scrambled latitude. But now each square mile near the poles is <i>more</i> likely than one at the equator, because the same probability is squeezed into less water. Also intuitive. Also incompatible with the other one.";
+}
+document.getElementById("shMode").onclick = e => {
+  const b = e.target.closest("button"); if(!b) return;
+  shMode = +b.dataset.m;
+  [...e.currentTarget.children].forEach(o=>o.setAttribute("aria-pressed", o===b));
+  shDraw();
+};
+
+cvDraw(); shDraw();
+window.addEventListener("resize", ()=>{ cvDraw(); shDraw(); });
+</script>
+</body>
+</html>
