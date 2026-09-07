@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Probability Workbench</title>
+<style>
+  :root {
+    --bg:#f7f7f5; --panel:#fff; --ink:#1c1c1a; --muted:#6b6b66; --line:#dedcd6;
+    --accent:#2f5d8a; --accent-soft:#e8f0f7; --warm:#b5651d; --warm-soft:#fbf0e4;
+    --good:#2f6b45; --good-soft:#e7f2ea; --bad:#8a3232; --grid:#e6e4de;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#17181a; --panel:#202225; --ink:#e8e8e4; --muted:#9b9b95; --line:#34363a;
+      --accent:#7fb0dd; --accent-soft:#23303c; --warm:#e0a45e; --warm-soft:#2f2619;
+      --good:#7fc79a; --good-soft:#1f2f26; --bad:#e08b8b; --grid:#2b2d31;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#17181a; --panel:#202225; --ink:#e8e8e4; --muted:#9b9b95; --line:#34363a;
+    --accent:#7fb0dd; --accent-soft:#23303c; --warm:#e0a45e; --warm-soft:#2f2619;
+    --good:#7fc79a; --good-soft:#1f2f26; --bad:#e08b8b; --grid:#2b2d31;
+  }
+  * { box-sizing:border-box; }
+  body {
+    background:var(--bg); color:var(--ink); margin:0; padding:0 20px 90px;
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  .wrap { max-width:820px; margin:0 auto; }
+  header { padding:40px 0 0; }
+  h1 { font-size:26px; margin:0 0 6px; letter-spacing:-0.015em; }
+  .sub { color:var(--muted); font-size:14px; margin:0 0 24px; }
+  .tabs { display:flex; gap:4px; border-bottom:1px solid var(--line); margin-bottom:26px; flex-wrap:wrap; }
+  .tab { font:inherit; font-size:15px; padding:10px 18px; cursor:pointer; background:none;
+    border:none; border-bottom:2px solid transparent; color:var(--muted); margin-bottom:-1px; }
+  .tab:hover { color:var(--ink); }
+  .tab[aria-selected="true"] { color:var(--accent); border-bottom-color:var(--accent); font-weight:600; }
+  h2 { font-size:20px; margin:0 0 6px; letter-spacing:-0.01em; }
+  h3 { font-size:15px; margin:26px 0 10px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600; }
+
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:11px; padding:20px 22px; margin-bottom:16px; }
+  .card .nm { font-size:12px; text-transform:uppercase; letter-spacing:.07em; color:var(--accent); font-weight:700; margin-bottom:8px; }
+  .eq { font-size:19px; margin:0 0 12px; padding:12px 14px; background:var(--accent-soft); border-radius:8px; overflow-x:auto; }
+  .plain { margin:0 0 12px; }
+  .plain b { color:var(--ink); }
+  .anal { background:var(--warm-soft); border-left:3px solid var(--warm); border-radius:0 8px 8px 0; padding:13px 15px; font-size:15px; }
+  .anal .l { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--warm); font-weight:700; margin-bottom:6px; }
+  .anal p { margin:0 0 10px; } .anal p:last-child { margin:0; }
+  .gotcha { margin-top:12px; font-size:14px; color:var(--muted); border-top:1px solid var(--line); padding-top:10px; }
+  .gotcha b { color:var(--bad); }
+
+  canvas { width:100%; display:block; border-radius:8px; }
+  .ctl { display:flex; gap:18px; flex-wrap:wrap; align-items:center; margin-top:16px; }
+  .sl { display:flex; flex-direction:column; gap:2px; min-width:190px; flex:1; }
+  .sl label { font-size:13px; color:var(--muted); display:flex; justify-content:space-between; gap:10px; }
+  .sl label b { color:var(--ink); font-variant-numeric:tabular-nums; }
+  input[type=range] { width:100%; accent-color:var(--accent); }
+  button.act { font:inherit; font-size:14px; padding:8px 16px; border-radius:7px;
+    border:1px solid var(--line); background:var(--bg); color:var(--ink); cursor:pointer; }
+  button.act:hover { border-color:var(--accent); }
+  button.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+  .big { font-size:32px; font-weight:650; letter-spacing:-0.02em; margin:14px 0 4px; }
+  .legend { display:flex; gap:16px; flex-wrap:wrap; font-size:13px; color:var(--muted); margin-top:12px; }
+  .legend i { display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:5px; vertical-align:-1px; }
+
+  .prob { background:var(--panel); border:1px solid var(--line); border-radius:11px; padding:20px 22px; margin-bottom:16px; }
+  .prob .tagline { font-size:12px; text-transform:uppercase; letter-spacing:.07em; color:var(--accent); font-weight:700; margin-bottom:8px; }
+  .prob .ask { font-weight:600; margin:12px 0; }
+  .step { border-left:2px solid var(--line); padding:2px 0 2px 16px; margin:10px 0; }
+  .step.shown { border-left-color:var(--accent); }
+  .step .n { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+  .step .body { margin-top:4px; }
+  .step .math { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:14px; background:var(--accent-soft); padding:8px 11px; border-radius:6px; margin-top:7px; overflow-x:auto; }
+  .ans { margin-top:14px; padding:12px 15px; background:var(--good-soft); border-radius:8px; font-size:16px; }
+  .ans b { font-size:19px; }
+  .src { color:var(--muted); font-size:13px; margin-top:14px; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Probability Workbench</h1>
+  <p class="sub">EN.605.745 Reasoning Under Uncertainty &middot; Module 1 &middot; equations, pictures, worked problems</p>
+  <div class="tabs" role="tablist">
+    <button class="tab" data-p="0" aria-selected="true">The equations</button>
+    <button class="tab" data-p="1" aria-selected="false">Bayes machine</button>
+    <button class="tab" data-p="2" aria-selected="false">Worked problems</button>
+  </div>
+</header>
+
+<!-- ================= EQUATIONS ================= -->
+<section id="p0">
+  <h2>Every equation in Module 1</h2>
+  <p class="sub">Symbol, then plain English, then a story to hang it on. The story is the part you will actually remember at 2am.</p>
+  <div id="eqs"></div>
+  <p class="src">Lecture notes 1-4 to 1-12 &middot; Lectures 1A, 1B, 1C &middot; Koller ch. 2, book pp. 15-24</p>
+</section>
+
+<!-- ================= BAYES MACHINE ================= -->
+<section id="p1" hidden>
+  <h2>The Bayes machine</h2>
+  <div class="anal" style="margin-bottom:20px">
+    <div class="l">The story</div>
+    <p>A town of 10,000 people. A disease that 1 in 1,000 of them has. A test that is <b>99% accurate</b>, whatever that means. You test positive. The doctor looks grim. How worried should you be?</p>
+    <p>Almost everyone, including most doctors, says something around 99%. The real answer, in the default settings below, is <b>about 9%</b>. Not 90. Nine.</p>
+    <p>Here is why, and the picture below makes it unavoidable. Ten people in town actually have it, and the test catches essentially all ten. But the other 9,990 people are healthy, and 1% of them get a false positive anyway, which is <b>about a hundred people</b>. So the "positive" waiting room contains ten sick people and a hundred healthy ones. You are somewhere in that room. Ten out of a hundred and ten.</p>
+    <p>The formula does not make this obvious. The <i>counting</i> makes it obvious. This is the single most useful trick in the course: whenever Bayes confuses you, stop doing algebra and start counting people. Drag the sliders and watch which square you land in.</p>
+  </div>
+
+  <div class="card">
+    <canvas id="bmC" height="330"></canvas>
+    <div class="legend">
+      <span><i style="background:#8a3232"></i>has it, tested positive</span>
+      <span><i style="background:#e0a45e"></i>healthy, tested positive (false alarm)</span>
+      <span><i style="background:#2f6b45"></i>has it, tested negative (missed)</span>
+      <span><i style="background:#b9b7b0"></i>healthy, tested negative</span>
+    </div>
+    <div class="ctl">
+      <div class="sl"><label>How common is it (prior) <b id="bmPV">0.1%</b></label>
+        <input type="range" id="bmP" min="0.05" max="30" step="0.05" value="0.1"></div>
+      <div class="sl"><label>Sensitivity, catches the sick <b id="bmSeV">99%</b></label>
+        <input type="range" id="bmSe" min="50" max="100" step="0.5" value="99"></div>
+      <div class="sl"><label>Specificity, clears the healthy <b id="bmSpV">99%</b></label>
+        <input type="range" id="bmSp" min="50" max="100" step="0.5" value="99"></div>
+    </div>
+    <div class="big" id="bmBig"></div>
+    <div id="bmOut" style="color:var(--muted);font-size:14px"></div>
+    <div class="step math" id="bmMath" style="margin-top:14px"></div>
+  </div>
+
+  <h3>What to try</h3>
+  <ul style="padding-left:20px">
+    <li>Leave the test at 99/99 and drag the <b>prior</b> up to 10%. The answer leaps to about 92%. Same test. The test never changed. <b>The base rate is doing almost all the work</b>, and that is the thing people's intuition throws away.</li>
+    <li>Put the prior back to 0.1% and push <b>specificity</b> from 99% to 99.9%. The answer jumps from 9% to 50%. Ten times fewer false alarms, five times more trustworthy result. For a rare condition, specificity matters far more than sensitivity.</li>
+    <li>Now wreck sensitivity instead, 99% down to 70%, leaving specificity at 99%. The answer barely moves. Missing sick people is bad for the sick people; it does almost nothing to the meaning of <i>your</i> positive result.</li>
+    <li>This is exactly your notes' <b>PickledLiver</b> example, where the doctor starts at a prior of 10<sup>&minus;17</sup>. Set the prior to its minimum here and see what a positive test is worth against a prior that small.</li>
+  </ul>
+  <p class="src">Notes &sect;1.5, Def. 1.11 (1-7, 1-11) &middot; Lecture 1B slides 13-17 &middot; Koller Example 2.2, book p. 19</p>
+</section>
+
+<!-- ================= WORKED PROBLEMS ================= -->
+<section id="p2" hidden>
+  <h2>Worked problems</h2>
+  <p class="sub">Read the setup, try it on paper, then reveal one step at a time. Every problem comes from your course materials.</p>
+  <div class="ctl" style="margin-bottom:20px">
+    <button class="act" id="allOpen">Reveal every step</button>
+    <button class="act" id="allShut">Hide all steps</button>
+  </div>
+  <div id="probs"></div>
+  <p class="src">Notes Examples 1-12 &middot; Lectures 1B and 1C &middot; Koller ch. 2</p>
+</section>
+
+</div>
+
+<script>
+/* ---------------- tabs ---------------- */
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
+  document.querySelectorAll(".tab").forEach(o => o.setAttribute("aria-selected", o === t));
+  [0,1,2].forEach(i => document.getElementById("p"+i).hidden = (+t.dataset.p !== i));
+  if (+t.dataset.p === 1) bmDraw();
+  window.scrollTo({ top:0, behavior:"smooth" });
+});
+
+/* ---------------- equations ---------------- */
+const EQ = [
+{ nm:"Axiom 1 · non-negativity", eq:"P(&alpha;) &ge; 0",
+  plain:"No event can have negative probability. The floor is zero: total impossibility.",
+  anal:"<p>You cannot believe something <i>less than not at all</i>. There is no anti-belief. If a bookmaker offered you odds implying &minus;20% chance of rain, you would not be very sure it won't rain; you would be looking at a broken bookmaker.</p>",
+  got:"Nothing subtle here, but it is an axiom rather than a theorem. It is <b>assumed</b>, not proved." },
+
+{ nm:"Axiom 2 · normalization", eq:"P(&Omega;) = 1",
+  plain:"Something in the sample space definitely happens. The whole menu has probability 1.",
+  anal:"<p>&Omega; is the complete menu of everything that could occur. This axiom says the universe is not allowed to abstain. It will order something.</p><p>This is also what makes probability comparable across problems: everything is measured as a slice of one whole pie, so a 0.3 in a dice problem means the same size of belief as a 0.3 in a weather forecast.</p>",
+  got:"If your probabilities don't sum to 1, you have not found a strange new distribution. You have <b>made an arithmetic error or forgotten an outcome</b>." },
+
+{ nm:"Axiom 3 · additivity", eq:"if &alpha; &cap; &beta; = &empty;, then P(&alpha; &cup; &beta;) = P(&alpha;) + P(&beta;)",
+  plain:"If two events cannot both happen, the chance of either one is just the sum.",
+  anal:"<p>Two pieces of pie that do not overlap: to know how much pie you have, add them. The whole content of the axiom is the word <b>disjoint</b>. Overlap is what breaks addition, because the overlap gets counted twice.</p><p>That is where the correction P(&alpha; &cup; &beta;) = P(&alpha;) + P(&beta;) &minus; P(&alpha; &cap; &beta;) comes from. It is not a new law; it is this axiom plus a refund for double-billing.</p>",
+  got:"<b>Disjoint is not the same as independent.</b> They are almost opposites. Disjoint events are maximally dependent: if one happened, the other definitely did not." },
+
+{ nm:"Definition 1.5 · principle of indifference", eq:"n equally likely simple events &rArr; P(each) = 1/n",
+  plain:"With no reason to favour one outcome over another, split the belief evenly.",
+  anal:"<p>A deck of 52 cards, and no reason to think the top card is the king of hearts rather than the seven of clubs. So 1/52 each.</p><p>This sounds harmless and is quietly dangerous. Module 2's North Atlantic ship example shows why: spreading belief evenly over <i>area</i> forces an <b>uneven</b> spread over <i>latitude</i>. Indifference is not a neutral act. It is a choice about which dimension you were indifferent along.</p>",
+  got:"Uniform is a <b>real assumption</b>, not the absence of one." },
+
+{ nm:"Definition 1.9 · conditional probability", eq:"P(&beta;|&alpha;) = P(&alpha; &cap; &beta;) / P(&alpha;)",
+  plain:"Given that &alpha; happened, how likely is &beta;? Look only at the &alpha; worlds, and ask what fraction of them also have &beta;.",
+  anal:"<p>A photographer crops a picture. The subject does not grow, but it now fills more of the frame. Conditioning is cropping: you throw away every world where &alpha; did not happen, and the surviving worlds have to be re-scaled so they add to 1 again. <b>The denominator is the re-scaling.</b> That is the only job it has.</p><p>This is why P(&beta;|&alpha;) can be enormous while P(&alpha; &cap; &beta;) is minuscule. Living to 100 given you are 99 is likely; being a 99-year-old who reaches 100 is rare. Same two facts, different frames.</p>",
+  got:"The condition is on the <b>right</b> of the bar, and the bar is not division. P(A|B) and P(B|A) are different numbers, and swapping them is the single most common error in the course." },
+
+{ nm:"Definition 1.10 · chain rule", eq:"P(&alpha; &cap; &beta;) = P(&alpha;) &times; P(&beta;|&alpha;)",
+  plain:"For both to happen: the chance the first happens, times the chance the second happens given the first did.",
+  anal:"<p>Dominoes in a row. To knock down the last one you need each to fall <i>given</i> the one before it fell. Multiply along the line.</p><p>The general form P(&alpha;<sub>k</sub> &cap; &hellip; &cap; &alpha;<sub>1</sub>) = &prod; P(&alpha;<sub>n</sub> | everything before it) is the same idea with a longer line. Note that each factor conditions on <b>all</b> the previous events, not just the one immediately before.</p>",
+  got:"Rearranged, this is just Definition 1.9 with the denominator moved. Your notes call it the chain rule; most textbooks call the two-event version the <b>product rule</b>. Same equation, and a quiz has already burned you on that." },
+
+{ nm:"Definition 1.7 · law of total probability", eq:"P(A) = &sum;<sub>n</sub> P(A|B<sub>n</sub>) P(B<sub>n</sub>)",
+  plain:"Split the world into non-overlapping cases, ask the question inside each, then weight each answer by how likely that case was.",
+  anal:"<p>You want to know how likely a randomly chosen JHU student owns a car. Rather than guess directly, split into rooms: undergrads, grads, faculty. Ask the rate in each room, then weight by how big each room is. A 90% car-ownership rate in a room holding four people barely moves the total.</p><p>This is almost always what people forget when computing the denominator of Bayes' rule. P(evidence) is rarely handed to you; you usually have to build it this way.</p>",
+  got:"The cases must be <b>disjoint and cover everything</b>. Miss a room and your total is wrong, usually in a way that is hard to spot." },
+
+{ nm:"Definition 1.11 · Bayes' rule", eq:"P(&alpha;|&beta;) = P(&beta;|&alpha;) P(&alpha;) / P(&beta;)",
+  plain:"Flip the conditional. You know how likely the evidence is given the cause; you want how likely the cause is given the evidence.",
+  anal:"<p>Running the projector backwards. Forward is easy: given measles, a rash is likely. Backward is what you actually need in the room: given a rash, is it measles? The world hands you forward knowledge and asks backward questions.</p><p>The prior P(&alpha;) is the term everyone drops, and it is the one that decides the answer. Measles produces a rash reliably, but if there is essentially no measles in your city, a rash is still almost certainly not measles. <b>Evidence updates a prior; it does not replace it.</b></p>",
+  got:"P(&beta;|&alpha;) is <b>not</b> P(&alpha;|&beta;). The whole rule exists because those two differ. If they were the same you would not need Bayes." },
+
+{ nm:"Definition 1.14 · independence", eq:"P(E|F) = P(E), or P(F) = 0",
+  plain:"Learning F tells you nothing about E. Your belief does not move.",
+  anal:"<p>The needle does not twitch. You learn the fact, you check your belief, it is where you left it.</p><p>Equivalently P(E &cap; F) = P(E)P(F), and it is symmetric: if F says nothing about E, then E says nothing about F. Note the escape clause, <b>or P(F) = 0</b>. If F is impossible, P(E|F) is a division by zero, so the definition declares independence to hold vacuously rather than being undefined. That clause has already appeared on a quiz.</p>",
+  got:"Independence is a claim about <b>belief</b>, not about causation or physical connection. And it is not the same as being mutually exclusive, which is maximal dependence." },
+
+{ nm:"Definition 1.16 · conditional independence", eq:"P(E|F &cap; G) = P(E|G), or P(F &cap; G) = 0",
+  plain:"Once you know G, learning F adds nothing about E. They only looked connected because of G.",
+  anal:"<p>Two marionettes on a stage appear to dance together. Left puppet's arm rises, right puppet's arm rises, every time. Watching them, you would swear one causes the other.</p><p>Then you look up and see <b>one puppeteer holding both sets of strings</b>. Now, if I tell you the puppeteer raised their left hand, does watching the left puppet tell you anything more about the right one? No. All the information was in the hand. Conditioned on the puppeteer, the puppets are independent.</p><p>G is the puppeteer. This is the entire idea behind naive Bayes, where the class label is the hand and the features are the puppets. It is also what your ice-cream-and-drownings example is really about: the sun is holding both strings.</p>",
+  got:"It runs <b>both ways and neither implies the other</b>. Your notes' card example has E and F dependent but conditionally independent given G. It can also go the other direction, where conditioning creates a dependence that wasn't there." },
+
+{ nm:"§1.5.2 · combining independent evidence", eq:"P(A|B,C) = P(A) &middot; P(B|A)/P(B) &middot; P(C|A)/P(C)",
+  plain:"With two pieces of evidence assumed conditionally independent given A, Bayes collapses into a product of separate update factors.",
+  anal:"<p>Each piece of evidence becomes a multiplier on your belief. Evidence that is twice as likely when A is true doubles your odds. Stack them up.</p><p>The catch is the assumption, and it is a big one. If B and C are secretly telling you the <b>same thing</b>, you are multiplying twice for one fact and your confidence comes out far too sharp. That is exactly the Norman-and-Martin trap: two commuters on opposite sides of the city, different transport, and still not independent once a train strike hits.</p>",
+  got:"Assuming conditional independence when it is false makes you <b>overconfident</b>, not just slightly wrong. It is the most common way a probabilistic model lies to you." }
+];
+document.getElementById("eqs").innerHTML = EQ.map(e => `
+  <div class="card">
+    <div class="nm">${e.nm}</div>
+    <div class="eq">${e.eq}</div>
+    <p class="plain">${e.plain}</p>
+    <div class="anal"><div class="l">Picture it</div>${e.anal}</div>
+    <div class="gotcha">${e.got}</div>
+  </div>`).join("");
+
+/* ---------------- Bayes machine ---------------- */
+const bm = id => document.getElementById(id);
+function bmDraw() {
+  const c = bm("bmC"), r = window.devicePixelRatio || 1, w = c.clientWidth, h = +c.getAttribute("height");
+  c.width = w*r; c.height = h*r;
+  const x = c.getContext("2d"); x.setTransform(r,0,0,r,0,0);
+  x.clearRect(0,0,w,h);
+
+  const prior = +bm("bmP").value/100, se = +bm("bmSe").value/100, sp = +bm("bmSp").value/100;
+  const N = 10000, cols = 125, rows = N/cols;
+  const cw = w/cols, ch = h/rows;
+
+  const sick = Math.round(N*prior);
+  const tp = Math.round(sick*se), fn = sick - tp;
+  const well = N - sick;
+  const fp = Math.round(well*(1-sp)), tn = well - fp;
+
+  const cats = [];
+  for (let i=0;i<tp;i++) cats.push("#8a3232");
+  for (let i=0;i<fn;i++) cats.push("#2f6b45");
+  for (let i=0;i<fp;i++) cats.push("#e0a45e");
+  for (let i=0;i<tn;i++) cats.push("#b9b7b0");
+
+  for (let i=0;i<N;i++) {
+    x.fillStyle = cats[i];
+    const cx = (i%cols)*cw, cy = Math.floor(i/cols)*ch;
+    x.globalAlpha = cats[i] === "#b9b7b0" ? 0.35 : 1;
+    x.fillRect(cx, cy, Math.max(cw-0.6,0.6), Math.max(ch-0.6,0.6));
+  }
+  x.globalAlpha = 1;
+
+  const post = (tp+fp) ? tp/(tp+fp) : 0;
+  bm("bmBig").innerHTML = `P(has it | tested positive) = <span style="color:var(--accent)">${(post*100).toFixed(1)}%</span>`;
+  bm("bmOut").innerHTML =
+    `Out of 10,000 people: <b>${sick.toLocaleString()}</b> actually have it. ` +
+    `The positive waiting room holds <b>${(tp+fp).toLocaleString()}</b> people &mdash; ` +
+    `<b>${tp.toLocaleString()}</b> genuinely sick and <b>${fp.toLocaleString()}</b> false alarms. ` +
+    (fn ? `<b>${fn.toLocaleString()}</b> sick people were missed entirely.` : `No sick person was missed.`);
+  bm("bmMath").textContent =
+    `P(+)     = P(+|D)P(D) + P(+|¬D)P(¬D)\n` +
+    `         = ${se.toFixed(3)}×${prior.toFixed(4)} + ${(1-sp).toFixed(3)}×${(1-prior).toFixed(4)}\n` +
+    `         = ${(se*prior + (1-sp)*(1-prior)).toFixed(5)}\n\n` +
+    `P(D|+)   = P(+|D)P(D) / P(+)\n` +
+    `         = ${(se*prior).toFixed(5)} / ${(se*prior+(1-sp)*(1-prior)).toFixed(5)}\n` +
+    `         = ${post.toFixed(4)}   →  ${(post*100).toFixed(1)}%`;
+}
+["bmP","bmSe","bmSp"].forEach(id => bm(id).oninput = e => {
+  const v = +e.target.value;
+  bm(id+"V").textContent = id === "bmP" ? (v < 1 ? v.toFixed(2)+"%" : v.toFixed(1)+"%") : v.toFixed(1)+"%";
+  bmDraw();
+});
+
+/* ---------------- worked problems ---------------- */
+const PROBS = [
+{ tag:"Axioms · Example 1", title:"Two kings from one deck",
+  setup:"Draw the top card from a standard 52-card deck. Let <code>kh</code> be \"king of hearts\" and <code>ks</code> be \"king of spades\".",
+  ask:"Find P(kh), P(ks) and P(kh &cup; ks).",
+  steps:[
+    {n:"Set up the sample space", b:"&Omega; is the 52 card faces. No reason to favour any one, so the principle of indifference gives every simple event probability 1/52.", m:"P(a) = 1/52 for each a ∈ Ω"},
+    {n:"Read off the two simple events", b:"Each is a single outcome, so each is a simple event.", m:"P(kh) = 1/52     P(ks) = 1/52"},
+    {n:"Check whether they overlap", b:"One card is drawn. It cannot be both the king of hearts and the king of spades, so the events are disjoint. That is precisely the condition axiom 3 requires.", m:"kh ∩ ks = ∅"},
+    {n:"Apply axiom 3", b:"Because they are disjoint you may simply add. No overlap correction is needed.", m:"P(kh ∪ ks) = P(kh) + P(ks) = 1/52 + 1/52 = 2/52 = 1/26"}
+  ],
+  ans:"P(kh) = P(ks) = 1/52, and P(kh &cup; ks) = 1/26 &asymp; 0.0385",
+  note:"If the events had overlapped you would need P(&alpha;) + P(&beta;) &minus; P(&alpha; &cap; &beta;). Always check disjointness before adding." },
+
+{ tag:"Chain rule · Example 4", title:"Two chips, no replacement",
+  setup:"A bowl holds 8 chips: 3 red and 5 blue. Two chips are drawn one after another, at random, <b>without replacement</b>.",
+  ask:"Find the probability the first is red and the second is blue.",
+  steps:[
+    {n:"Name the events", b:"Let C₁ = \"first draw is red\" and C₂ = \"second draw is blue\". You want them both, so you want the joint probability P(C₁ ∩ C₂)."},
+    {n:"Reach for the chain rule", b:"Joint probability equals the first event times the second <i>given</i> the first. This is Definition 1.10.", m:"P(C₁ ∩ C₂) = P(C₁) × P(C₂|C₁)"},
+    {n:"First factor", b:"Three red chips out of eight.", m:"P(C₁) = 3/8"},
+    {n:"Second factor, and this is the whole problem", b:"Given a red chip already left the bowl, only 7 chips remain, and all 5 blue ones are still there. Without replacement is what makes the second factor conditional. With replacement it would still be 5/8.", m:"P(C₂|C₁) = 5/7"},
+    {n:"Multiply", b:"", m:"P(C₁ ∩ C₂) = 3/8 × 5/7 = 15/56 ≈ 0.2679"}
+  ],
+  ans:"15/56 &asymp; 0.268",
+  note:"\"Without replacement\" is the examiner telling you the draws are dependent. Your notes state directly that draws <b>with</b> replacement are independent." },
+
+{ tag:"Bayes · Lecture 1B slide 14", title:"Which bowl did the red chip come from?",
+  setup:"Bowl C₁ holds 3 red and 7 blue chips. Bowl C₂ holds 8 red and 2 blue. A die is cast: if it shows 5 or 6 you draw from C₁, otherwise from C₂. A chip is drawn and it is <b>red</b>.",
+  ask:"Find P(C₁ | red).",
+  steps:[
+    {n:"Priors, from the die", b:"Two faces out of six select C₁, the other four select C₂. These are your priors, fixed before any chip is seen.", m:"P(C₁) = 2/6 = 1/3     P(C₂) = 4/6 = 2/3"},
+    {n:"Likelihoods, from the bowls", b:"Within each bowl, the chance of drawing red.", m:"P(red|C₁) = 3/10     P(red|C₂) = 8/10"},
+    {n:"Build the denominator with total probability", b:"P(red) is not given, so construct it. Split the world into the two bowls, ask the question in each, weight by how likely that bowl was. This is Definition 1.7, and forgetting this step is the usual failure.", m:"P(red) = P(red|C₁)P(C₁) + P(red|C₂)P(C₂)\n       = (3/10)(1/3) + (8/10)(2/3)\n       = 3/30 + 16/30 = 19/30"},
+    {n:"Apply Bayes", b:"Now flip the conditional.", m:"P(C₁|red) = P(red|C₁)P(C₁) / P(red)\n          = (3/30) / (19/30)\n          = 3/19 ≈ 0.1579"},
+    {n:"Sanity check the direction", b:"The prior for C₁ was 1/3 ≈ 0.333. Seeing red <i>lowered</i> it to about 0.158, which is right: C₂ is the red-heavy bowl, so a red chip is evidence against C₁. If your answer had gone up, you would have flipped a conditional."}
+  ],
+  ans:"P(C₁ | red) = 3/19 &asymp; 0.158",
+  note:"Notice the 1/30s cancel. Bayes problems are usually less arithmetic than they look; keep the common denominator and the cancellation does the work." },
+
+{ tag:"Bayes · Lecture 1B slide 16", title:"Is the student smart?",
+  setup:"Among JHU students, P(GradeA | Smart) = 0.6. The prior for being smart is P(Smart) = 0.3, and grade As overall run at P(GradeA) = 0.2. You learn a particular student got an A.",
+  ask:"Find P(Smart | GradeA). Then redo it for an easier test where P(GradeA) = 0.4.",
+  steps:[
+    {n:"Identify which conditional you have and which you want", b:"You are given P(GradeA | Smart), the forward direction. You want P(Smart | GradeA), the backward one. That gap is exactly what Bayes' rule closes."},
+    {n:"Write it out", b:"", m:"P(Smart|GradeA) = P(GradeA|Smart) · P(Smart) / P(GradeA)"},
+    {n:"Substitute", b:"Here P(GradeA) is handed to you, so no total-probability step is needed.", m:"= (0.6 × 0.3) / 0.2 = 0.18 / 0.2 = 0.9"},
+    {n:"Now make the test easier", b:"Nothing about the students changed. Only the denominator moved, because As became common.", m:"= (0.6 × 0.3) / 0.4 = 0.18 / 0.4 = 0.45"},
+    {n:"Read what happened", b:"An A moved belief from 0.3 to 0.9 when As were rare, but only from 0.3 to 0.45 when they were common. Evidence is informative in proportion to how <b>surprising</b> it is. A signal everyone emits carries almost nothing."}
+  ],
+  ans:"0.9 when P(GradeA) = 0.2; 0.45 when P(GradeA) = 0.4",
+  note:"This is the same shape as the disease test on the Bayes machine tab. Rare evidence for a rare cause is powerful; common evidence is weak." },
+
+{ tag:"Joint tables · Lecture 1C slide 12", title:"Reading a conditional off a joint table",
+  setup:"Three Boolean variables: Bird, Flier, Young. From the joint table you have P(¬B, F, ¬Y) = 0.01 and P(B, F, ¬Y) = 0.2.",
+  ask:"Find P(¬Bird | Flier, ¬Young).",
+  steps:[
+    {n:"Write the definition", b:"Conditioning on two things at once is no different: everything to the right of the bar is the crop.", m:"P(¬B | F, ¬Y) = P(¬B, F, ¬Y) / P(F, ¬Y)"},
+    {n:"Build the denominator by marginalizing", b:"P(F, ¬Y) is not in the table directly. Sum over every value the missing variable Bird can take. It is either a bird or it is not; those two cases are disjoint and cover everything.", m:"P(F, ¬Y) = P(¬B, F, ¬Y) + P(B, F, ¬Y)\n         = 0.01 + 0.2 = 0.21"},
+    {n:"Divide", b:"", m:"P(¬B | F, ¬Y) = 0.01 / 0.21 ≈ 0.048"},
+    {n:"Notice the cost", b:"This worked, but it required the full joint table. Three Boolean variables need 2³ = 8 entries; thirty need over a billion. That blow-up is the reason your notes pivot to Bayes' rule and conditional independence right after this example."}
+  ],
+  ans:"&asymp; 0.048",
+  note:"Marginalizing means summing out a variable you don't care about. It is the law of total probability wearing a different hat." },
+
+{ tag:"Conditional independence · Example 11", title:"Dependent, until you condition",
+  setup:"From a 52-card deck let E = {kh, ks, qh}, F = {kh, kc, qh}, G = {kh, ks, kc, kd}. (kh = king of hearts, kc = king of clubs, qh = queen of hearts, kd = king of diamonds.)",
+  ask:"Show E and F are not independent, but are conditionally independent given G.",
+  steps:[
+    {n:"Unconditional probability of E", b:"Three cards out of 52.", m:"P(E) = 3/52 ≈ 0.0577"},
+    {n:"Condition on F", b:"F has 3 members. Which of them are also in E? kh and qh, so 2 of the 3.", m:"P(E|F) = |E ∩ F| / |F| = 2/3 ≈ 0.667"},
+    {n:"Compare, and conclude dependence", b:"0.667 is nowhere near 0.0577, so Definition 1.14 fails. Learning F moved the belief enormously.", m:"P(E|F) ≠ P(E)  ⟹  not independent"},
+    {n:"Now condition on G alone", b:"G has 4 members: kh, ks, kc, kd. Of those, kh and ks are in E.", m:"P(E|G) = 2/4 = 1/2"},
+    {n:"Condition on both F and G", b:"F ∩ G = {kh, kc}, which has 2 members. Of those, only kh is in E.", m:"F ∩ G = {kh, kc}\nP(E | F ∩ G) = 1/2"},
+    {n:"Compare against Definition 1.16", b:"Once G is known, adding F changes nothing. The dependence in step 3 was entirely explained by G.", m:"P(E | F ∩ G) = P(E|G) = 1/2  ⟹  E ⊥ F | G"}
+  ],
+  ans:"E and F are dependent, but E &perp; F | G",
+  note:"This is the puppeteer. E and F looked linked, and G was holding both strings the whole time." },
+
+{ tag:"Screening · Koller Example 2.2", title:"The 99% accurate test",
+  setup:"A TB skin test is 95% accurate in both directions: P(+|TB) = 0.95 and P(&minus;|¬TB) = 0.95. The disease affects 1 person in 1,000, so P(TB) = 0.001. A person tests positive.",
+  ask:"Find P(TB | +).",
+  steps:[
+    {n:"Extract all four numbers before touching algebra", b:"Sensitivity and specificity are both 0.95, so the false-positive rate is 1 − 0.95.", m:"P(TB) = 0.001        P(¬TB) = 0.999\nP(+|TB) = 0.95       P(+|¬TB) = 0.05"},
+    {n:"Denominator via total probability", b:"Two disjoint cases, sick and healthy, weighted by their priors.", m:"P(+) = 0.95×0.001 + 0.05×0.999\n     = 0.00095 + 0.04995\n     = 0.0509"},
+    {n:"Bayes", b:"", m:"P(TB|+) = 0.00095 / 0.0509 ≈ 0.0187"},
+    {n:"Now count people instead, and see it", b:"Take 100,000 people. About 100 have TB and 95 of them test positive. The other 99,900 are healthy, and 5% of them — about 4,995 people — test positive anyway. The positive room holds 95 sick and 4,995 healthy.", m:"95 / (95 + 4995) ≈ 0.0187"},
+    {n:"Say the sentence that matters", b:"A 95% accurate test on a 1-in-1,000 disease leaves a positive result under 2% likely to be real. Nothing is wrong with the test. The prior is simply doing more work than the evidence."}
+  ],
+  ans:"P(TB | +) &asymp; 0.019, under 2%",
+  note:"Try these exact numbers on the Bayes machine tab: prior 0.1%, sensitivity 95%, specificity 95%." },
+
+{ tag:"Independence traps · Example 12", title:"Norman, Martin, and the train strike",
+  setup:"Norman commutes by train, Martin drives, and they live on opposite sides of the city. Let A = \"Norman late\" and B = \"Martin late\".",
+  ask:"Are A and B independent? What does it take to decide?",
+  steps:[
+    {n:"State the tempting answer", b:"Different people, different cities, different transport. Nothing physically links them, so it is tempting to declare P(A|B) = P(A) and move on."},
+    {n:"Hunt for a common cause instead", b:"Independence is a claim about belief, not about physical connection. So the real question is whether any single factor moves both. A train union strike C raises P(A) directly, and raises P(B) too through extra road traffic. An international fuel shortage does the same."},
+    {n:"Conclude dependence", b:"Because such a C exists and is plausible, the events are not independent. Knowing Martin is late genuinely raises your belief that Norman is late, via the hidden cause.", m:"P(A|B) > P(A)  ⟹  not independent"},
+    {n:"Apply the notes' actual standard", b:"Your notes say any model of uncertainty \"should take account of all <b>reasonable</b> factors,\" while a meteorite strike may be reasonably excluded. So the test is not \"can I imagine a link\" but \"is a shared cause plausible here.\""},
+    {n:"Recover the independence, conditionally", b:"Condition on the strike and the link dissolves. Given that you already know whether there is a strike, Martin's lateness tells you little more about Norman. That is Definition 1.16 again.", m:"A ⊥ B | C   is plausible, even though   A ⊥ B   is not"}
+  ],
+  ans:"Not independent. A shared cause makes them move together, though they may be conditionally independent given that cause.",
+  note:"This is the assumption that quietly breaks naive Bayes and any pipeline that multiplies evidence together. Assuming independence you don't have makes you overconfident." }
+];
+
+document.getElementById("probs").innerHTML = PROBS.map((p, pi) => `
+  <div class="prob">
+    <div class="tagline">${p.tag}</div>
+    <h3 style="margin:0 0 10px;text-transform:none;letter-spacing:0;font-size:18px;color:var(--ink)">${p.title}</h3>
+    <p style="margin:0">${p.setup}</p>
+    <p class="ask">${p.ask}</p>
+    ${p.steps.map((s, si) => `
+      <div class="step" data-p="${pi}" data-s="${si}">
+        <div class="n">Step ${si+1}</div>
+        <div class="body" hidden>
+          ${s.b ? `<div>${s.b}</div>` : ""}
+          ${s.m ? `<div class="math">${s.m}</div>` : ""}
+        </div>
+        <button class="act reveal" style="margin-top:6px;font-size:13px;padding:5px 12px">Show step ${si+1}</button>
+      </div>`).join("")}
+    <div class="ans" hidden><b>${p.ans}</b><div style="font-size:14px;margin-top:8px;color:var(--muted)">${p.note}</div></div>
+  </div>`).join("");
+
+document.querySelectorAll(".reveal").forEach(b => b.onclick = () => {
+  const st = b.closest(".step");
+  st.classList.add("shown");
+  st.querySelector(".body").hidden = false;
+  b.remove();
+  const box = st.closest(".prob");
+  if (!box.querySelector(".reveal")) box.querySelector(".ans").hidden = false;
+});
+document.getElementById("allOpen").onclick = () => {
+  document.querySelectorAll(".reveal").forEach(b => b.click());
+};
+document.getElementById("allShut").onclick = () => location.reload();
+
+bmDraw();
+window.addEventListener("resize", () => { if (!document.getElementById("p1").hidden) bmDraw(); });
+</script>
+</body>
+</html>

@@ -1,9 +1,13 @@
-# Reasoning Under Uncertainty - practice quiz
+# Reasoning Under Uncertainty - study tools
 
-A self-contained practice quiz for EN.605.745, Modules 1 and 2.
-Multiple choice, select-all, true/false and fill-in questions, with the correct
-answer and an explanation revealed after submitting, plus a score.
+Study aids for EN.605.745, Modules 1 and 2.
 
-Live: https://barbosaricardo.github.io/ruu-quiz/
+- Practice quiz: https://barbosaricardo.github.io/ruu-quiz/
+- Probability workbench: https://barbosaricardo.github.io/ruu-quiz/workbench/
 
-Single static file, no dependencies, no build step.
+The quiz has ten questions per module, revealing the correct answer, an explanation and
+a source citation after you submit. The workbench holds every Module 1 equation with a
+plain-English reading and an analogy, an interactive Bayes visualizer that counts people
+instead of doing algebra, and eight worked problems with steps revealed one at a time.
+
+Static HTML, no dependencies, no build step.
