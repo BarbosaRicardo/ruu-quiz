@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reasoning Under Uncertainty - Quiz</title>
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --panel: #ffffff;
+    --ink: #1c1c1a;
+    --muted: #6b6b66;
+    --line: #dedcd6;
+    --accent: #2f5d8a;
+    --accent-soft: #e8f0f7;
+    --good: #2f6b45;
+    --good-soft: #e7f2ea;
+    --bad: #8a3232;
+    --bad-soft: #f7e9e9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #17181a;
+      --panel: #202225;
+      --ink: #e8e8e4;
+      --muted: #9b9b95;
+      --line: #34363a;
+      --accent: #7fb0dd;
+      --accent-soft: #23303c;
+      --good: #7fc79a;
+      --good-soft: #1f2f26;
+      --bad: #e08b8b;
+      --bad-soft: #332323;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #17181a;
+    --panel: #202225;
+    --ink: #e8e8e4;
+    --muted: #9b9b95;
+    --line: #34363a;
+    --accent: #7fb0dd;
+    --accent-soft: #23303c;
+    --good: #7fc79a;
+    --good-soft: #1f2f26;
+    --bad: #e08b8b;
+    --bad-soft: #332323;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0 20px 80px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  header { padding: 40px 0 24px; border-bottom: 1px solid var(--line); margin-bottom: 28px; }
+  h1 { font-size: 24px; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0; }
+
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+  button {
+    font: inherit;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 7px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.primary:hover { opacity: .9; }
+  button:disabled { opacity: .5; cursor: default; }
+
+  .q {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px 22px;
+    margin-bottom: 16px;
+  }
+  .qhead { display: flex; gap: 10px; align-items: baseline; margin-bottom: 4px; }
+  .qnum { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .tag {
+    font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
+    color: var(--accent); background: var(--accent-soft);
+    padding: 2px 7px; border-radius: 4px; margin-left: auto;
+  }
+  .qtext { margin: 0 0 14px; }
+  .qtext code { background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; font-size: 14px; }
+
+  label.opt {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 9px 12px; border-radius: 7px; cursor: pointer;
+    border: 1px solid transparent;
+  }
+  label.opt:hover { background: var(--accent-soft); }
+  label.opt input { margin: 4px 0 0; flex: none; }
+  .opt.correct { background: var(--good-soft); border-color: var(--good); }
+  .opt.wrong { background: var(--bad-soft); border-color: var(--bad); }
+  .mark { margin-left: auto; font-size: 13px; font-weight: 600; flex: none; }
+  .mark.g { color: var(--good); }
+  .mark.b { color: var(--bad); }
+
+  input[type=text] {
+    font: inherit; padding: 9px 12px; width: 100%; max-width: 320px;
+    border: 1px solid var(--line); border-radius: 7px;
+    background: var(--bg); color: var(--ink);
+  }
+
+  .why {
+    margin-top: 14px; padding: 12px 14px;
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    border-radius: 0 7px 7px 0;
+    font-size: 14px;
+  }
+  .why b { display: block; margin-bottom: 3px; }
+  .src { color: var(--muted); font-size: 13px; margin-top: 6px; }
+
+  #score {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 24px; margin-bottom: 24px;
+    position: sticky; top: 12px; z-index: 5;
+  }
+  #score h2 { margin: 0 0 4px; font-size: 20px; }
+  .pct { font-size: 34px; font-weight: 650; letter-spacing: -0.02em; }
+  .bar { height: 7px; background: var(--line); border-radius: 4px; overflow: hidden; margin: 12px 0 4px; }
+  .bar > div { height: 100%; background: var(--accent); width: 0; transition: width .5s ease; }
+  .breakdown { color: var(--muted); font-size: 14px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Reasoning Under Uncertainty</h1>
+  <p class="sub">EN.605.745 &middot; Modules 1 and 2 &middot; practice quiz</p>
+  <div class="controls">
+    <button id="submit" class="primary">Submit answers</button>
+    <button id="retry" hidden>Try again</button>
+    <button id="shuffle">Shuffle questions</button>
+  </div>
+</header>
+
+<div id="score" hidden></div>
+<form id="quiz"></form>
+
+<div class="controls">
+  <button id="submit2" class="primary">Submit answers</button>
+</div>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    type: "one",
+    q: "Axioms of probability (Kolmogorov axioms) are the foundations of probability theory. How many of these axioms are there?",
+    options: ["4", "3", "2", "5"],
+    answer: [1],
+    why: "Non-negativity, normalization, and additivity for disjoint events. Consequences like P(&empty;) = 0 and the inclusion-exclusion rule are derived, not axioms.",
+    src: "Notes Def. 1.6 (1-5) &middot; Koller Def. 2.1, book p. 16"
+  },
+  {
+    type: "one",
+    q: "What is NOT one of the reasons discussed for why we would want to reason under uncertainty?",
+    options: ["Agents have lack of information", "True uncertainty", "Practical ignorance", "Computing resources limited"],
+    answer: [3],
+    why: "The six listed reasons are all gaps in knowledge, information, or effort. Limited compute would make reasoning slow, not uncertain.",
+    src: "Notes &sect;1.2.1 (1-2)"
+  },
+  {
+    type: "many",
+    q: "Which of the following are reasons for reasoning probabilistically?",
+    options: ["Theoretical ignorance of the domain", "True uncertainty exists in the domain", "Pure laziness", "Practical ignorance of the domain", "Logic would fail in this domain", "The only way to deal with uncertainty is with probability"],
+    answer: [0, 1, 2, 3],
+    why: "Four of the six listed reasons appear here. The last two overstate the case: the notes present probability as the framework this course adopts, not the only one that exists.",
+    src: "Notes &sect;1.2.1 (1-2)"
+  },
+  {
+    type: "one",
+    q: "Event 1: a baseball team scoring 12 runs. Event 2: a baseball team winning a game. What type of event is this?",
+    options: ["Independent", "Conditional", "Prior", "Correlated"],
+    answer: [3],
+    why: "The stem asks for a type of <em>event</em>. Correlated names a relationship between two events; conditional and prior describe a probability, not an event. Scoring 12 runs raises the chance of winning, so they are not independent.",
+    src: "Koller p. 3, Example 1.1 (Season correlated with flu and hayfever)"
+  },
+  {
+    type: "one",
+    q: "Event 1: a basketball team winning by 30 points. Event 2: an orange weighing more than 4 ounces. What type of event is this?",
+    options: ["Independent", "Conditional", "Posterior", "Related"],
+    answer: [0],
+    why: "P(E|F) = P(E). Learning the basketball result tells you nothing about the orange. Unlike Norman and Martin, there is no reasonable common cause linking them.",
+    src: "Notes Def. 1.14 (1-10) &middot; Koller Def. 2.2, book p. 23"
+  },
+  {
+    type: "many",
+    q: "Rewriting the definition of conditional probability will lead to what rule(s)?",
+    options: ["Product Rule", "Chain Rule", "Bayes' Rule", "Addition Rule"],
+    answer: [0, 1, 2],
+    why: "Multiply through P(&beta;|&alpha;) = P(&alpha; &cap; &beta;)/P(&alpha;) and you get the product rule, which the notes call the chain rule. Write it both ways and Bayes falls out. The addition rule comes from the axioms instead, and never touches conditioning.",
+    src: "Notes Def. 1.10 and 1.11 (1-7) &middot; Koller &sect;2.1.2.2, book p. 18"
+  },
+  {
+    type: "one",
+    q: "The Na&iuml;ve Bayes Classifier is called na&iuml;ve because it makes what assumption?",
+    options: ["The features of the data are independent", "The features are unconditionally independent", "The features are conditionally independent", "The features are correlated"],
+    answer: [2],
+    why: "Features are independent <em>given the class label</em>, not outright. Koller is explicit: \"none of the variables in this distribution are (marginally) independent.\" Unconditionally is a synonym for marginally, so it is the same wrong answer twice.",
+    src: "Koller &sect;3.1.3, book p. 48 &middot; Notes Def. 1.16 (1-10)"
+  },
+  {
+    type: "many",
+    q: "Two events E and F are conditionally independent given G if what is true?",
+    options: ["P(E|F&cap;G) = P(E|G)", "P(E&cap;F) = 0", "P(F&cap;G) = 0", "P(E|F&cap;G) = P(E|G)P(F|G)"],
+    answer: [0, 2],
+    why: "Definition 1.16 has an \"or\" clause most people forget: the statement also holds vacuously when P(F &cap; G) = 0, since the conditional is otherwise undefined. Option 4 welds the wrong left side onto Proposition 1.17, which is P(E &cap; F|G) = P(E|G)P(F|G).",
+    src: "Notes Def. 1.16 and Prop. 1.17 (1-10) &middot; Koller Def. 2.3, book p. 24"
+  },
+  {
+    type: "fill",
+    q: "A formal means of manipulating degrees of belief in propositions is through ______ theory.",
+    answer: ["probability"],
+    why: "The notes say we \"think of probability theory as a formal means of manipulating degrees of belief.\" Note the blank is followed by the word theory, so only one word goes in.",
+    src: "Notes &sect;1.3.1 (1-3) &middot; Koller &sect;2.1.1.3, book p. 17"
+  },
+  {
+    type: "tf",
+    q: "Bayes' Rule provides us with a way to update our beliefs based on the arrival of new, relevant pieces of evidence.",
+    answer: [0],
+    why: "Prior P(A), evidence B arrives, posterior P(A|B). The word relevant matters: if the evidence is independent of A, nothing updates.",
+    src: "Notes &sect;1.5 (1-11)"
+  },
+  {
+    type: "one",
+    q: "In \"In Defense of Probability,\" what is Cheeseman's main claim?",
+    options: [
+      "Probability is sufficient for reasoning about uncertainty, and other schemes are unnecessary",
+      "Probability must be supplemented by fuzzy logic for vague propositions",
+      "Bayesian methods require more data than is usually available",
+      "Uncertainty needs at least two numbers to represent it faithfully"
+    ],
+    answer: [0],
+    why: "The other three options are positions Cheeseman argues <em>against</em>, and he treats each as a misconception rather than a limitation of probability.",
+    src: "Notes &sect;2.2.1 (2-2) &middot; Lecture 2A"
+  },
+  {
+    type: "one",
+    q: "Which of these is NOT one of the logical-style reasoning schemes Cheeseman surveys as an alternative to probability?",
+    options: ["Non-monotonic logic", "Default logic", "Certainty factors", "Maximum entropy logic"],
+    answer: [3],
+    why: "The surveyed list is non-monotonic logic, default logic, certainty factors, Dempster-Shafer theory, confirmation theory, and fuzzy logic. Maximum entropy is real, but it is a method for assigning priors <em>within</em> probability, not a rival to it.",
+    src: "Notes &sect;2.2.1 (2-2 to 2-4) &middot; Lecture 2A, slide 3"
+  },
+  {
+    type: "many",
+    q: "According to Cheeseman, which statements about probability are correct?",
+    options: [
+      "There is no such thing as the probability of a proposition, since the value depends on the evidence used",
+      "Different observers with different evidence will assign different probabilities",
+      "Probabilities are subjective in that the value depends on the believer's information",
+      "Two ideal believers given the same information may still legitimately disagree"
+    ],
+    answer: [0, 1, 2],
+    why: "The first three are the corollaries stated in the notes. The fourth inverts the point: probabilities are objective in the sense that ideal believers with identical information should arrive at the same value.",
+    src: "Notes Def. 2.6 and Cor. 2.7 (2-5) &middot; Lecture 2B"
+  },
+  {
+    type: "one",
+    q: "Cox frames probability as having involved two ideas from the beginning. What are they?",
+    options: [
+      "Frequency in an ensemble and reasonable expectation",
+      "Prior belief and posterior belief",
+      "Aleatoric uncertainty and epistemic uncertainty",
+      "Objective chance and subjective utility"
+    ],
+    answer: [0],
+    why: "Cox opens by naming these two and asking whether every reasonable expectation is also a frequency in some ensemble. His answer is no, which is why the choice between them is not moot.",
+    src: "Notes &sect;2.3 (2-8) &middot; Lecture 2D &middot; Cox 1946, p. 1"
+  },
+  {
+    type: "tf",
+    q: "According to Cox, every measure of reasonable expectation is also a frequency in some ensemble.",
+    answer: [1],
+    why: "False. Cox: \"There is a field of probable inference which lies outside the range of that theory.\" Cases where an ensemble can genuinely be generated are rare compared to everything one might reason about. His example is that the frequency definition does not suffice to connect statistical mechanics to thermodynamics.",
+    src: "Notes &sect;2.3.3 (2-11) &middot; Lecture 2D, slides 5 and 11"
+  },
+  {
+    type: "tf",
+    q: "The claim that Bayesian analysis requires vast amounts of data follows from viewing probability as a frequency ratio.",
+    answer: [0],
+    why: "True, and the notes call it a fallacy for that reason. If probability just is a frequency ratio, you need a large reference class. Treating probability as a measure of belief given evidence dissolves the objection.",
+    src: "Notes &sect;2.2.3 item 2 (2-5) &middot; Lecture 2B, slide 3"
+  },
+  {
+    type: "one",
+    q: "In Dempster-Shafer theory, a probability mass function is assigned to what?",
+    options: [
+      "Each subset of the domain &Omega;",
+      "Each element of the domain &Omega;",
+      "Each pair of elements in &Omega;",
+      "Each conditional probability table"
+    ],
+    answer: [0],
+    why: "Assigning mass to subsets rather than elements is what lets the theory represent incomplete knowledge, and it is why belief and plausibility are two separate numbers.",
+    src: "Lecture 2A, slide 8 &middot; Notes &sect;2.2.1"
+  },
+  {
+    type: "one",
+    q: "The ship in the North Atlantic example is used to illustrate which point?",
+    options: [
+      "Equal probabilities cannot be arbitrarily assigned to one dimension without implying unequal assignments on another",
+      "Prior probabilities should be avoided when information is scarce",
+      "Maximum entropy always produces a uniform distribution",
+      "Frequency and expectation coincide for spatial problems"
+    ],
+    answer: [0],
+    why: "Uniform over area and uniform over latitude are different distributions, and you cannot have both. The lesson is that rich domain knowledge usually produces non-uniform priors, not that priors should be dropped.",
+    src: "Notes &sect;2.2.3 item 3 and Figure 2.2 (2-6) &middot; Lecture 2B, slide 4"
+  }
+];
+
+const form = document.getElementById("quiz");
+const scoreBox = document.getElementById("score");
+let order = QUESTIONS.map((_, i) => i);
+let graded = false;
+
+const TAG = { one: "one answer", many: "select all", tf: "true / false", fill: "fill in" };
+
+function render() {
+  graded = false;
+  scoreBox.hidden = true;
+  document.getElementById("retry").hidden = true;
+  form.innerHTML = "";
+
+  order.forEach((qi, n) => {
+    const q = QUESTIONS[qi];
+    const card = document.createElement("div");
+    card.className = "q";
+    card.dataset.qi = qi;
+
+    const head = document.createElement("div");
+    head.className = "qhead";
+    head.innerHTML = `<span class="qnum">Question ${n + 1}</span><span class="tag">${TAG[q.type]}</span>`;
+    card.appendChild(head);
+
+    const text = document.createElement("p");
+    text.className = "qtext";
+    text.innerHTML = q.q;
+    card.appendChild(text);
+
+    if (q.type === "fill") {
+      const inp = document.createElement("input");
+      inp.type = "text";
+      inp.placeholder = "your answer";
+      inp.name = "q" + qi;
+      card.appendChild(inp);
+    } else {
+      const opts = q.type === "tf" ? ["True", "False"] : q.options;
+      const kind = q.type === "many" ? "checkbox" : "radio";
+      opts.forEach((opt, oi) => {
+        const lab = document.createElement("label");
+        lab.className = "opt";
+        lab.dataset.oi = oi;
+        lab.innerHTML =
+          `<input type="${kind}" name="q${qi}" value="${oi}"><span>${opt}</span>`;
+        card.appendChild(lab);
+      });
+    }
+    form.appendChild(card);
+  });
+}
+
+function normalize(s) {
+  return s.toLowerCase().trim().replace(/\s+/g, " ").replace(/[.?!]$/, "");
+}
+
+function grade() {
+  if (graded) return;
+  graded = true;
+  let correct = 0;
+
+  order.forEach(qi => {
+    const q = QUESTIONS[qi];
+    const card = form.querySelector(`[data-qi="${qi}"]`);
+    let ok = false;
+
+    if (q.type === "fill") {
+      const inp = card.querySelector("input[type=text]");
+      const given = normalize(inp.value);
+      ok = q.answer.some(a => normalize(a) === given || given === normalize(a) + " theory");
+      inp.disabled = true;
+      inp.style.borderColor = ok ? "var(--good)" : "var(--bad)";
+      if (!ok) {
+        const p = document.createElement("p");
+        p.className = "src";
+        p.innerHTML = `Correct answer: <b>${q.answer[0]}</b>`;
+        inp.after(p);
+      }
+    } else {
+      const picked = [...card.querySelectorAll("input:checked")].map(i => +i.value);
+      ok = picked.length === q.answer.length && picked.every(p => q.answer.includes(p));
+
+      card.querySelectorAll("label.opt").forEach(lab => {
+        const oi = +lab.dataset.oi;
+        const input = lab.querySelector("input");
+        input.disabled = true;
+        const isAnswer = q.answer.includes(oi);
+        const chosen = picked.includes(oi);
+        if (isAnswer) {
+          lab.classList.add("correct");
+          const m = document.createElement("span");
+          m.className = "mark g";
+          m.textContent = chosen ? "correct" : "correct answer";
+          lab.appendChild(m);
+        } else if (chosen) {
+          lab.classList.add("wrong");
+          const m = document.createElement("span");
+          m.className = "mark b";
+          m.textContent = "your answer";
+          lab.appendChild(m);
+        }
+      });
+    }
+
+    if (ok) correct++;
+
+    const why = document.createElement("div");
+    why.className = "why";
+    why.innerHTML = `<b>${ok ? "Correct" : "Not quite"}</b>${q.why}<div class="src">${q.src}</div>`;
+    card.appendChild(why);
+  });
+
+  const total = order.length;
+  const pct = Math.round((correct / total) * 100);
+  scoreBox.hidden = false;
+  scoreBox.innerHTML = `
+    <h2>Score</h2>
+    <div class="pct">${correct} / ${total} &middot; ${pct}%</div>
+    <div class="bar"><div></div></div>
+    <div class="breakdown">${
+      pct === 100 ? "Every one. Nothing left to review."
+      : pct >= 80 ? "Solid. Read the notes on the ones you missed."
+      : pct >= 50 ? "Worth another pass through the Module 1 and 2 notes."
+      : "Start with the lecture notes before retrying."
+    }</div>`;
+  requestAnimationFrame(() => {
+    scoreBox.querySelector(".bar > div").style.width = pct + "%";
+  });
+  document.getElementById("retry").hidden = false;
+  document.getElementById("submit").disabled = true;
+  document.getElementById("submit2").disabled = true;
+  scoreBox.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function reset() {
+  document.getElementById("submit").disabled = false;
+  document.getElementById("submit2").disabled = false;
+  render();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.getElementById("submit").onclick = grade;
+document.getElementById("submit2").onclick = grade;
+document.getElementById("retry").onclick = reset;
+document.getElementById("shuffle").onclick = () => {
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  reset();
+};
+
+render();
+</script>
+</body>
+</html>
