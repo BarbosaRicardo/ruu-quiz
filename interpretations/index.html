@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#2f5d8a" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17181a" media="(prefers-color-scheme: dark)">
 <title>Interpretations Workbench</title>
 <style>
   :root {
@@ -77,6 +80,18 @@
   .verdictline { font-size:14px; margin-top:10px; padding:10px 13px; border-radius:7px; background:var(--bad-soft); }
   .verdictline b { color:var(--bad); }
   .src { color:var(--muted); font-size:13px; margin-top:18px; }
+
+  @media (max-width: 620px) {
+    body { padding:0 13px 70px; }
+    header { padding:22px 0 0; }
+    h1 { font-size:21px; }
+    .card, .q, .prob, .panel, .score { padding:16px 15px; }
+    .tab { padding:9px 12px; font-size:14px; }
+    .chip { padding:8px 13px; }
+    .eq, .math { font-size:14px; }
+    .sl { min-width:100%; }
+    canvas { height:auto; }
+  }
   [hidden] { display:none !important; }
 </style>
 </head>
@@ -86,7 +101,7 @@
 <header>
   <h1>Interpretations Workbench</h1>
   <p class="sub">EN.605.745 Reasoning Under Uncertainty &middot; Module 2 &middot; what a probability actually <i>is</i></p>
-  <p class="sub" style="margin:-14px 0 18px"><a href="../workbench/" style="color:var(--accent)">&rarr; Module 1: Probability Workbench</a> &nbsp;&middot;&nbsp; <a href="../" style="color:var(--accent)">&rarr; Practice quiz</a></p>
+  <p class="sub" style="margin:-10px 0 16px"><a href="../reference/" style="color:var(--accent)">Definitions</a> &middot; <a href="../workbench/" style="color:var(--accent)">Workbench</a> &middot; <a href="../interpretations/" style="color:var(--accent)">Interpretations</a> &middot; <a href="../" style="color:var(--accent)">Quiz</a></p>
   <div class="tabs" role="tablist">
     <button class="tab" data-p="0" aria-selected="true">Two interpretations</button>
     <button class="tab" data-p="1" aria-selected="false">Cox's ladder</button>
