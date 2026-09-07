@@ -6,99 +6,66 @@
 <title>Reasoning Under Uncertainty - Quiz</title>
 <style>
   :root {
-    --bg: #f7f7f5;
-    --panel: #ffffff;
-    --ink: #1c1c1a;
-    --muted: #6b6b66;
-    --line: #dedcd6;
-    --accent: #2f5d8a;
-    --accent-soft: #e8f0f7;
-    --good: #2f6b45;
-    --good-soft: #e7f2ea;
-    --bad: #8a3232;
-    --bad-soft: #f7e9e9;
+    --bg: #f7f7f5; --panel: #ffffff; --ink: #1c1c1a; --muted: #6b6b66;
+    --line: #dedcd6; --accent: #2f5d8a; --accent-soft: #e8f0f7;
+    --good: #2f6b45; --good-soft: #e7f2ea; --bad: #8a3232; --bad-soft: #f7e9e9;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #17181a;
-      --panel: #202225;
-      --ink: #e8e8e4;
-      --muted: #9b9b95;
-      --line: #34363a;
-      --accent: #7fb0dd;
-      --accent-soft: #23303c;
-      --good: #7fc79a;
-      --good-soft: #1f2f26;
-      --bad: #e08b8b;
-      --bad-soft: #332323;
+      --bg: #17181a; --panel: #202225; --ink: #e8e8e4; --muted: #9b9b95;
+      --line: #34363a; --accent: #7fb0dd; --accent-soft: #23303c;
+      --good: #7fc79a; --good-soft: #1f2f26; --bad: #e08b8b; --bad-soft: #332323;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #17181a;
-    --panel: #202225;
-    --ink: #e8e8e4;
-    --muted: #9b9b95;
-    --line: #34363a;
-    --accent: #7fb0dd;
-    --accent-soft: #23303c;
-    --good: #7fc79a;
-    --good-soft: #1f2f26;
-    --bad: #e08b8b;
-    --bad-soft: #332323;
+    --bg: #17181a; --panel: #202225; --ink: #e8e8e4; --muted: #9b9b95;
+    --line: #34363a; --accent: #7fb0dd; --accent-soft: #23303c;
+    --good: #7fc79a; --good-soft: #1f2f26; --bad: #e08b8b; --bad-soft: #332323;
   }
 
   * { box-sizing: border-box; }
   body {
-    background: var(--bg);
-    color: var(--ink);
+    background: var(--bg); color: var(--ink); margin: 0; padding: 0 20px 80px;
     font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    margin: 0;
-    padding: 0 20px 80px;
   }
   .wrap { max-width: 760px; margin: 0 auto; }
 
-  header { padding: 40px 0 24px; border-bottom: 1px solid var(--line); margin-bottom: 28px; }
+  header { padding: 40px 0 0; }
   h1 { font-size: 24px; margin: 0 0 6px; letter-spacing: -0.01em; }
-  .sub { color: var(--muted); font-size: 14px; margin: 0; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 22px; }
 
-  .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
-  button {
-    font: inherit;
-    font-size: 14px;
-    padding: 8px 16px;
-    border-radius: 7px;
-    border: 1px solid var(--line);
-    background: var(--panel);
-    color: var(--ink);
-    cursor: pointer;
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 24px; }
+  .tab {
+    font: inherit; font-size: 15px; padding: 10px 18px; cursor: pointer;
+    background: none; border: none; border-bottom: 2px solid transparent;
+    color: var(--muted); margin-bottom: -1px;
   }
-  button:hover { border-color: var(--accent); }
+  .tab:hover { color: var(--ink); }
+  .tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+  .modtitle { font-size: 15px; color: var(--muted); margin: 0 0 18px; }
+
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 24px; }
+  button.act {
+    font: inherit; font-size: 14px; padding: 8px 16px; border-radius: 7px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer;
+  }
+  button.act:hover { border-color: var(--accent); }
   button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
   button.primary:hover { opacity: .9; }
-  button:disabled { opacity: .5; cursor: default; }
+  button.act:disabled { opacity: .5; cursor: default; }
 
-  .q {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 20px 22px;
-    margin-bottom: 16px;
-  }
+  .q { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; margin-bottom: 16px; }
   .qhead { display: flex; gap: 10px; align-items: baseline; margin-bottom: 4px; }
   .qnum { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
   .tag {
-    font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
-    color: var(--accent); background: var(--accent-soft);
-    padding: 2px 7px; border-radius: 4px; margin-left: auto;
+    font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--accent);
+    background: var(--accent-soft); padding: 2px 7px; border-radius: 4px; margin-left: auto;
   }
   .qtext { margin: 0 0 14px; }
   .qtext code { background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; font-size: 14px; }
 
-  label.opt {
-    display: flex; gap: 10px; align-items: flex-start;
-    padding: 9px 12px; border-radius: 7px; cursor: pointer;
-    border: 1px solid transparent;
-  }
+  label.opt { display: flex; gap: 10px; align-items: flex-start; padding: 9px 12px; border-radius: 7px; cursor: pointer; border: 1px solid transparent; }
   label.opt:hover { background: var(--accent-soft); }
   label.opt input { margin: 4px 0 0; flex: none; }
   .opt.correct { background: var(--good-soft); border-color: var(--good); }
@@ -109,26 +76,15 @@
 
   input[type=text] {
     font: inherit; padding: 9px 12px; width: 100%; max-width: 320px;
-    border: 1px solid var(--line); border-radius: 7px;
-    background: var(--bg); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--ink);
   }
 
-  .why {
-    margin-top: 14px; padding: 12px 14px;
-    border-left: 3px solid var(--accent);
-    background: var(--accent-soft);
-    border-radius: 0 7px 7px 0;
-    font-size: 14px;
-  }
+  .why { margin-top: 14px; padding: 12px 14px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 7px 7px 0; font-size: 14px; }
   .why b { display: block; margin-bottom: 3px; }
   .src { color: var(--muted); font-size: 13px; margin-top: 6px; }
 
-  #score {
-    background: var(--panel); border: 1px solid var(--line);
-    border-radius: 10px; padding: 24px; margin-bottom: 24px;
-    position: sticky; top: 12px; z-index: 5;
-  }
-  #score h2 { margin: 0 0 4px; font-size: 20px; }
+  .score { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 24px; margin-bottom: 24px; }
+  .score h2 { margin: 0 0 4px; font-size: 20px; }
   .pct { font-size: 34px; font-weight: 650; letter-spacing: -0.02em; }
   .bar { height: 7px; background: var(--line); border-radius: 4px; overflow: hidden; margin: 12px 0 4px; }
   .bar > div { height: 100%; background: var(--accent); width: 0; transition: width .5s ease; }
@@ -141,163 +97,173 @@
 
 <header>
   <h1>Reasoning Under Uncertainty</h1>
-  <p class="sub">EN.605.745 &middot; Modules 1 and 2 &middot; practice quiz</p>
-  <div class="controls">
-    <button id="submit" class="primary">Submit answers</button>
-    <button id="retry" hidden>Try again</button>
-    <button id="shuffle">Shuffle questions</button>
+  <p class="sub">EN.605.745 &middot; practice quiz</p>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-mod="0" aria-selected="true">Module 1</button>
+    <button class="tab" role="tab" data-mod="1" aria-selected="false">Module 2</button>
   </div>
 </header>
 
-<div id="score" hidden></div>
+<p class="modtitle" id="modtitle"></p>
+
+<div class="controls">
+  <button class="act primary" id="submit">Submit answers</button>
+  <button class="act" id="retry" hidden>Try again</button>
+  <button class="act" id="shuffle">Shuffle</button>
+</div>
+
+<div class="score" id="score" hidden></div>
 <form id="quiz"></form>
 
 <div class="controls">
-  <button id="submit2" class="primary">Submit answers</button>
+  <button class="act primary" id="submit2">Submit answers</button>
 </div>
 
 </div>
 
 <script>
-const QUESTIONS = [
+const MODULES = [
+{
+  name: "Module 1 - Mathematical Formalism of Probability",
+  questions: [
   {
     type: "one",
-    q: "Axioms of probability (Kolmogorov axioms) are the foundations of probability theory. How many of these axioms are there?",
-    options: ["4", "3", "2", "5"],
-    answer: [1],
-    why: "Non-negativity, normalization, and additivity for disjoint events. Consequences like P(&empty;) = 0 and the inclusion-exclusion rule are derived, not axioms.",
-    src: "Notes Def. 1.6 (1-5) &middot; Koller Def. 2.1, book p. 16"
-  },
-  {
-    type: "one",
-    q: "What is NOT one of the reasons discussed for why we would want to reason under uncertainty?",
-    options: ["Agents have lack of information", "True uncertainty", "Practical ignorance", "Computing resources limited"],
-    answer: [3],
-    why: "The six listed reasons are all gaps in knowledge, information, or effort. Limited compute would make reasoning slow, not uncertain.",
-    src: "Notes &sect;1.2.1 (1-2)"
-  },
-  {
-    type: "many",
-    q: "Which of the following are reasons for reasoning probabilistically?",
-    options: ["Theoretical ignorance of the domain", "True uncertainty exists in the domain", "Pure laziness", "Practical ignorance of the domain", "Logic would fail in this domain", "The only way to deal with uncertainty is with probability"],
-    answer: [0, 1, 2, 3],
-    why: "Four of the six listed reasons appear here. The last two overstate the case: the notes present probability as the framework this course adopts, not the only one that exists.",
-    src: "Notes &sect;1.2.1 (1-2)"
-  },
-  {
-    type: "one",
-    q: "Event 1: a baseball team scoring 12 runs. Event 2: a baseball team winning a game. What type of event is this?",
-    options: ["Independent", "Conditional", "Prior", "Correlated"],
-    answer: [3],
-    why: "The stem asks for a type of <em>event</em>. Correlated names a relationship between two events; conditional and prior describe a probability, not an event. Scoring 12 runs raises the chance of winning, so they are not independent.",
-    src: "Koller p. 3, Example 1.1 (Season correlated with flu and hayfever)"
-  },
-  {
-    type: "one",
-    q: "Event 1: a basketball team winning by 30 points. Event 2: an orange weighing more than 4 ounces. What type of event is this?",
-    options: ["Independent", "Conditional", "Posterior", "Related"],
+    q: "According to the course definitions, what is an <em>experiment</em>?",
+    options: [
+      "A process leading to two or more outcomes where there is uncertainty about which will occur",
+      "Any repeated trial whose long-run frequency can be measured",
+      "A mapping from events to real numbers between 0 and 1",
+      "A set containing all possible outcomes"
+    ],
     answer: [0],
-    why: "P(E|F) = P(E). Learning the basketball result tells you nothing about the orange. Unlike Norman and Martin, there is no reasonable common cause linking them.",
-    src: "Notes Def. 1.14 (1-10) &middot; Koller Def. 2.2, book p. 23"
-  },
-  {
-    type: "many",
-    q: "Rewriting the definition of conditional probability will lead to what rule(s)?",
-    options: ["Product Rule", "Chain Rule", "Bayes' Rule", "Addition Rule"],
-    answer: [0, 1, 2],
-    why: "Multiply through P(&beta;|&alpha;) = P(&alpha; &cap; &beta;)/P(&alpha;) and you get the product rule, which the notes call the chain rule. Write it both ways and Bayes falls out. The addition rule comes from the axioms instead, and never touches conditioning.",
-    src: "Notes Def. 1.10 and 1.11 (1-7) &middot; Koller &sect;2.1.2.2, book p. 18"
+    why: "Uncertainty about which outcome occurs is the defining feature. The fourth option describes the sample space, and the third describes a probability distribution.",
+    src: "Notes Def. 1.1 (1-4) &middot; Lecture 1B, slide 3"
   },
   {
     type: "one",
-    q: "The Na&iuml;ve Bayes Classifier is called na&iuml;ve because it makes what assumption?",
-    options: ["The features of the data are independent", "The features are unconditionally independent", "The features are conditionally independent", "The features are correlated"],
-    answer: [2],
-    why: "Features are independent <em>given the class label</em>, not outright. Koller is explicit: \"none of the variables in this distribution are (marginally) independent.\" Unconditionally is a synonym for marginally, so it is the same wrong answer twice.",
-    src: "Koller &sect;3.1.3, book p. 48 &middot; Notes Def. 1.16 (1-10)"
-  },
-  {
-    type: "many",
-    q: "Two events E and F are conditionally independent given G if what is true?",
-    options: ["P(E|F&cap;G) = P(E|G)", "P(E&cap;F) = 0", "P(F&cap;G) = 0", "P(E|F&cap;G) = P(E|G)P(F|G)"],
-    answer: [0, 2],
-    why: "Definition 1.16 has an \"or\" clause most people forget: the statement also holds vacuously when P(F &cap; G) = 0, since the conditional is otherwise undefined. Option 4 welds the wrong left side onto Proposition 1.17, which is P(E &cap; F|G) = P(E|G)P(F|G).",
-    src: "Notes Def. 1.16 and Prop. 1.17 (1-10) &middot; Koller Def. 2.3, book p. 24"
+    q: "An event that contains exactly one outcome is called what?",
+    options: ["A trivial event", "A simple event", "A marginal event", "An atomic space"],
+    answer: [1],
+    why: "An event is any subset of the sample space. When the subset holds just one outcome it is a simple event. Drawing one specific card from a deck is the course's example.",
+    src: "Notes Def. 1.3 (1-4) &middot; Lecture 1B, slides 3-4"
   },
   {
     type: "fill",
-    q: "A formal means of manipulating degrees of belief in propositions is through ______ theory.",
-    answer: ["probability"],
-    why: "The notes say we \"think of probability theory as a formal means of manipulating degrees of belief.\" Note the blank is followed by the word theory, so only one word goes in.",
-    src: "Notes &sect;1.3.1 (1-3) &middot; Koller &sect;2.1.1.3, book p. 17"
+    q: "A ______ space &Omega; is the set of all possible outcomes of an experiment.",
+    answer: ["sample"],
+    why: "&Omega; collects every outcome the experiment can produce. For one draw from a deck, &Omega; holds the faces of all 52 cards.",
+    src: "Notes Def. 1.2 (1-4) &middot; Lecture 1B, slide 3"
+  },
+  {
+    type: "one",
+    q: "Which of these is NOT one of the three conditions a probability distribution P over &Omega; must satisfy?",
+    options: [
+      "P(&alpha;) &ge; 0 for all &alpha; &isin; &Omega;",
+      "P(&Omega;) = 1",
+      "If &alpha; &cap; &beta; = &empty; then P(&alpha; &cup; &beta;) = P(&alpha;) + P(&beta;)",
+      "P(&alpha; | &beta;) = P(&alpha;) for all &alpha;, &beta; &isin; &Omega;"
+    ],
+    answer: [3],
+    why: "The fourth is the definition of independence, and it certainly does not hold for every pair of events. The first three are the axioms.",
+    src: "Notes Def. 1.6 (1-5) &middot; Lecture 1B, slide 5"
+  },
+  {
+    type: "one",
+    q: "The law of total probability states that the probability of an event equals which of the following?",
+    options: [
+      "P(A) = &sum;<sub>n</sub> P(A|B<sub>n</sub>) P(B<sub>n</sub>)",
+      "P(A) = &sum;<sub>n</sub> P(A &cap; B<sub>n</sub>) / P(B<sub>n</sub>)",
+      "P(A) = &prod;<sub>n</sub> P(A|B<sub>n</sub>)",
+      "P(A) = 1 &minus; &sum;<sub>n</sub> P(B<sub>n</sub>|A)"
+    ],
+    answer: [0],
+    why: "The sum of its probability across disjoint events, each weighted by that event's own probability. This is what lets you reach a marginal from a set of conditionals.",
+    src: "Notes Def. 1.7 (1-6) &middot; Lecture 1B, slide 7"
+  },
+  {
+    type: "one",
+    q: "Mayweather was a &minus;210 favorite over Pacquiao, giving a win probability of 21/31 = 0.6774. Which interpretation of probability does this illustrate?",
+    options: [
+      "Frequentist, because betting markets aggregate many past fights",
+      "Subjective, because it reflects the house's belief rather than a relative frequency",
+      "Neither, because betting odds are not probabilities",
+      "Both equally, since the two interpretations coincide for sporting events"
+    ],
+    answer: [1],
+    why: "The notes are explicit: the number \"does not represent any relative frequency or ratio of victories. It is simply the houses belief that Mayweather Jr. would win.\" That specific fight happened exactly once.",
+    src: "Notes Example 3 (1-4) &middot; Lecture 1A, slide 9"
+  },
+  {
+    type: "one",
+    q: "Using the chain rule, which expansion of P(A<sub>4</sub> &cap; A<sub>3</sub> &cap; A<sub>2</sub> &cap; A<sub>1</sub>) is correct?",
+    options: [
+      "P(A<sub>4</sub>) &middot; P(A<sub>3</sub>) &middot; P(A<sub>2</sub>) &middot; P(A<sub>1</sub>)",
+      "P(A<sub>4</sub>|A<sub>3</sub>&cap;A<sub>2</sub>&cap;A<sub>1</sub>) &middot; P(A<sub>3</sub>|A<sub>2</sub>&cap;A<sub>1</sub>) &middot; P(A<sub>2</sub>|A<sub>1</sub>) &middot; P(A<sub>1</sub>)",
+      "P(A<sub>4</sub>|A<sub>3</sub>) &middot; P(A<sub>3</sub>|A<sub>2</sub>) &middot; P(A<sub>2</sub>|A<sub>1</sub>) &middot; P(A<sub>1</sub>)",
+      "P(A<sub>1</sub>|A<sub>2</sub>&cap;A<sub>3</sub>&cap;A<sub>4</sub>) &middot; P(A<sub>4</sub>&cap;A<sub>3</sub>&cap;A<sub>2</sub>)"
+    ],
+    answer: [1],
+    why: "Each factor conditions on <em>all</em> the events that follow it, not just the next one. Option 1 assumes full independence; option 3 assumes a Markov-style chain, which the rule does not.",
+    src: "Notes Example 5, eq. 1.7-1.9 (1-7) &middot; Lecture 1B, slide 12"
+  },
+  {
+    type: "one",
+    q: "In the course definition, a random variable X is what kind of object?",
+    options: [
+      "A function assigning to each element of &Omega; one and only one real number",
+      "A variable whose value is chosen uniformly at random from &Omega;",
+      "A subset of the sample space with unknown probability",
+      "A distribution over the events in &Omega;"
+    ],
+    answer: [0],
+    why: "A random variable is a function on the sample space, not a variable in the ordinary sense and not random by itself. In the craps example X(i,j) = i + j maps each of the 36 dice pairs to a sum.",
+    src: "Notes &sect;1.4.2.4 (1-8) &middot; Lecture 1C, slides 3-4"
   },
   {
     type: "tf",
-    q: "Bayes' Rule provides us with a way to update our beliefs based on the arrival of new, relevant pieces of evidence.",
+    q: "In the card example with E = {kh, ks, qh}, F = {kh, kc, qh} and G = {kh, ks, kc, kd}, the events E and F are not independent, but they are independent once you condition on G.",
     answer: [0],
-    why: "Prior P(A), evidence B arrives, posterior P(A|B). The word relevant matters: if the evidence is independent of A, nothing updates.",
-    src: "Notes &sect;1.5 (1-11)"
-  },
-  {
-    type: "one",
-    q: "In \"In Defense of Probability,\" what is Cheeseman's main claim?",
-    options: [
-      "Probability is sufficient for reasoning about uncertainty, and other schemes are unnecessary",
-      "Probability must be supplemented by fuzzy logic for vague propositions",
-      "Bayesian methods require more data than is usually available",
-      "Uncertainty needs at least two numbers to represent it faithfully"
-    ],
-    answer: [0],
-    why: "The other three options are positions Cheeseman argues <em>against</em>, and he treats each as a misconception rather than a limitation of probability.",
-    src: "Notes &sect;2.2.1 (2-2) &middot; Lecture 2A"
-  },
-  {
-    type: "one",
-    q: "Which of these is NOT one of the logical-style reasoning schemes Cheeseman surveys as an alternative to probability?",
-    options: ["Non-monotonic logic", "Default logic", "Certainty factors", "Maximum entropy logic"],
-    answer: [3],
-    why: "The surveyed list is non-monotonic logic, default logic, certainty factors, Dempster-Shafer theory, confirmation theory, and fuzzy logic. Maximum entropy is real, but it is a method for assigning priors <em>within</em> probability, not a rival to it.",
-    src: "Notes &sect;2.2.1 (2-2 to 2-4) &middot; Lecture 2A, slide 3"
+    why: "True. P(E|F) = 2/3 while P(E) = 3/52, so E and F are dependent. But P(E|G) = 1/2 and P(E|F &cap; G) = 1/2, so conditioning on G makes them independent. Conditional independence neither implies nor is implied by independence.",
+    src: "Notes Example 11 (1-10) &middot; Lecture 1C, slide 10"
   },
   {
     type: "many",
-    q: "According to Cheeseman, which statements about probability are correct?",
+    q: "Which of the following are true of independence as defined in this course?",
     options: [
-      "There is no such thing as the probability of a proposition, since the value depends on the evidence used",
-      "Different observers with different evidence will assign different probabilities",
-      "Probabilities are subjective in that the value depends on the believer's information",
-      "Two ideal believers given the same information may still legitimately disagree"
+      "Independence is symmetric: if A is independent of B, then B is independent of A",
+      "Draws with replacement are independent",
+      "P satisfies (E &perp; F) if and only if P(E &cap; F) = P(E)P(F)",
+      "Two mutually exclusive events with nonzero probability are independent"
     ],
     answer: [0, 1, 2],
-    why: "The first three are the corollaries stated in the notes. The fourth inverts the point: probabilities are objective in the sense that ideal believers with identical information should arrive at the same value.",
-    src: "Notes Def. 2.6 and Cor. 2.7 (2-5) &middot; Lecture 2B"
+    why: "The first three are stated directly in the notes. The fourth is false and worth remembering: if A and B are mutually exclusive, learning that A occurred tells you B did not, which is maximal dependence rather than independence.",
+    src: "Notes Def. 1.14 and Prop. 1.15 (1-10) &middot; Lecture 1C, slide 8"
+  }
+  ]
+},
+{
+  name: "Module 2 - Interpretations and the 'Inevitability' of Probability",
+  questions: [
+  {
+    type: "one",
+    q: "The Nixon example, where someone is both a Quaker and a Republican and the conclusions cancel, is used to show a failure of which scheme?",
+    options: ["Fuzzy logic", "Non-monotonic logic", "Confirmation theory", "Dempster-Shafer theory"],
+    answer: [1],
+    why: "Non-monotonic logic covers frameworks for defeasible inference, where conclusions may be retracted given further information. With both assertions true the conclusion is invalidated, and the framework has no way to weigh one against the other.",
+    src: "Notes Def. 2.1 and Example 1 (2-2) &middot; Lecture 2A, slide 4"
   },
   {
     type: "one",
-    q: "Cox frames probability as having involved two ideas from the beginning. What are they?",
+    q: "Under the default rule \"birds typically fly,\" why can Flies(Condor) be concluded while Flies(Penguin) cannot?",
     options: [
-      "Frequency in an ensemble and reasonable expectation",
-      "Prior belief and posterior belief",
-      "Aleatoric uncertainty and epistemic uncertainty",
-      "Objective chance and subjective utility"
+      "Condor appears in the knowledge base and Penguin does not",
+      "The justification Flies(Penguin) is inconsistent with what is already known",
+      "Penguin fails the precondition Bird(Penguin)",
+      "Default logic only licenses conclusions about individuals, not species"
     ],
-    answer: [0],
-    why: "Cox opens by naming these two and asking whether every reasonable expectation is also a frequency in some ensemble. His answer is no, which is why the choice between them is not moot.",
-    src: "Notes &sect;2.3 (2-8) &middot; Lecture 2D &middot; Cox 1946, p. 1"
-  },
-  {
-    type: "tf",
-    q: "According to Cox, every measure of reasonable expectation is also a frequency in some ensemble.",
     answer: [1],
-    why: "False. Cox: \"There is a field of probable inference which lies outside the range of that theory.\" Cases where an ensemble can genuinely be generated are rare compared to everything one might reason about. His example is that the frequency definition does not suffice to connect statistical mechanics to thermodynamics.",
-    src: "Notes &sect;2.3.3 (2-11) &middot; Lecture 2D, slides 5 and 11"
-  },
-  {
-    type: "tf",
-    q: "The claim that Bayesian analysis requires vast amounts of data follows from viewing probability as a frequency ratio.",
-    answer: [0],
-    why: "True, and the notes call it a fallacy for that reason. If probability just is a frequency ratio, you need a large reference class. Treating probability as a measure of belief given evidence dissolves the objection.",
-    src: "Notes &sect;2.2.3 item 2 (2-5) &middot; Lecture 2B, slide 3"
+    why: "Bird(Penguin) satisfies the precondition, so that is not the obstacle. The rule fires only when the justification stays consistent with current knowledge, and knowing penguins do not fly blocks it.",
+    src: "Notes Example 2 (2-3) &middot; Lecture 2A, slide 5"
   },
   {
     type: "one",
@@ -305,43 +271,112 @@ const QUESTIONS = [
     options: [
       "Each subset of the domain &Omega;",
       "Each element of the domain &Omega;",
-      "Each pair of elements in &Omega;",
-      "Each conditional probability table"
+      "Each rule in the production system",
+      "Each pair of belief and utility values"
     ],
     answer: [0],
-    why: "Assigning mass to subsets rather than elements is what lets the theory represent incomplete knowledge, and it is why belief and plausibility are two separate numbers.",
-    src: "Lecture 2A, slide 8 &middot; Notes &sect;2.2.1"
+    why: "Assigning mass to subsets rather than elements is what lets the theory represent incomplete knowledge, and it is why every statement carries two numbers, belief and plausibility, instead of one.",
+    src: "Lecture 2A, slide 8 &middot; Notes &sect;2.2.4 (2-7)"
   },
   {
     type: "one",
-    q: "The ship in the North Atlantic example is used to illustrate which point?",
+    q: "How does fuzzy logic differ from Boolean logic?",
     options: [
-      "Equal probabilities cannot be arbitrarily assigned to one dimension without implying unequal assignments on another",
-      "Prior probabilities should be avoided when information is scarce",
-      "Maximum entropy always produces a uniform distribution",
-      "Frequency and expectation coincide for spatial problems"
+      "Truth values may be any real number in [0, 1] rather than only 0 or 1",
+      "It assigns probabilities to propositions instead of truth values",
+      "It permits conclusions to be retracted when new evidence arrives",
+      "It requires a threshold before a hypothesis counts as confirmed"
     ],
     answer: [0],
-    why: "Uniform over area and uniform over latitude are different distributions, and you cannot have both. The lesson is that rich domain knowledge usually produces non-uniform priors, not that priors should be dropped.",
-    src: "Notes &sect;2.2.3 item 3 and Figure 2.2 (2-6) &middot; Lecture 2B, slide 4"
+    why: "Fuzzy logic is many-valued logic handling partial truth. Option 3 describes non-monotonic logic and option 4 describes confirmation theory, both of which appear on the same list of alternatives.",
+    src: "Notes Def. 2.5 (2-4) &middot; Lecture 2A, slide 10"
+  },
+  {
+    type: "one",
+    q: "For the rule (s<sub>1</sub>, s<sub>2</sub>, s<sub>3</sub>) &rarr; h with value 0.7, why is 0.7 not a probability?",
+    options: [
+      "Because it was elicited from an expert rather than measured from data",
+      "Because you cannot conclude that P(~h | s<sub>1</sub>, s<sub>2</sub>, s<sub>3</sub>) = 0.3",
+      "Because three pieces of evidence are not enough to support a probability",
+      "Because probabilities must be stated to more decimal places"
+    ],
+    answer: [1],
+    why: "The three observations count as evidence <em>for</em> the conclusion only, and say nothing against it. Under such schemes evidence for and against must be gathered and evaluated separately, which breaks the complement rule that a genuine probability obeys.",
+    src: "Notes Example 6 (2-7) &middot; Lecture 2B, slide 7"
+  },
+  {
+    type: "tf",
+    q: "In probabilistic reasoning, contradictions between pieces of evidence do not occur.",
+    answer: [0],
+    why: "True. All evidence is combined into a final probability value, so there is never a need to reject a piece of evidence, though evidence can be used to reject hypotheses. Reasoning that looks logical, like \"if there is smoke, there is fire,\" shows its non-logical nature exactly when contradictory evidence appears.",
+    src: "Notes &sect;2.2.5 (2-8) &middot; Lecture 2C, slide 4"
+  },
+  {
+    type: "one",
+    q: "The example of locating a ship somewhere in the North Atlantic is used to make which point?",
+    options: [
+      "Assigning equal probability along one dimension forces unequal assignments along another",
+      "Prior probabilities should be avoided whenever information is scarce",
+      "Maximum entropy always yields a uniform distribution",
+      "Search problems require frequency data rather than subjective priors"
+    ],
+    answer: [0],
+    why: "Uniform over equal areas and uniform over latitude are different distributions, and you cannot hold both. The conclusion is that rich domain knowledge usually produces non-uniform priors, not that priors should be dropped.",
+    src: "Notes &sect;2.2.3 item 3, Figure 2.2 (2-6) &middot; Lecture 2B, slide 4"
+  },
+  {
+    type: "fill",
+    q: "Cox frames probability as having involved two ideas: reasonable expectation, and frequency in an ______.",
+    answer: ["ensemble"],
+    why: "The ensemble may be indefinitely many identical boxes, or indefinitely many drawings from one box with replacement. The assumption it requires is that the initial circumstances are capable of indefinite repetition.",
+    src: "Notes &sect;2.3 (2-8) and &sect;2.3.2 (2-9) &middot; Lecture 2D, slides 2-3"
+  },
+  {
+    type: "tf",
+    q: "Cox concludes that every measure of reasonable expectation is also a frequency in some ensemble, making the choice between the two interpretations moot.",
+    answer: [1],
+    why: "False. Cox writes that \"there is a field of probable inference which lies outside the range of that theory,\" so frequency rules cannot be justified there. Cases where an ensemble can genuinely be constructed are rare, and the frequency definition does not even suffice to connect statistical mechanics to thermodynamics.",
+    src: "Notes &sect;2.3.1 (2-9) and &sect;2.3.3 (2-11) &middot; Lecture 2D, slides 5 and 11"
+  },
+  {
+    type: "many",
+    q: "Which of the following does Cheeseman list among the conceptual confusions about probability?",
+    options: [
+      "Relative versus absolute probabilities",
+      "Separation of probability and utility",
+      "Probability versus uncertainty about the probability",
+      "Confusion between conditional and joint distributions"
+    ],
+    answer: [0, 1, 2],
+    why: "The listed confusions are relative versus absolute probabilities, separation of probability and utility, probabilities as a measure of belief in a proposition, and probability versus uncertainty about the probability. The fourth option is a genuine source of error but is not on that list.",
+    src: "Notes &sect;2.2.4 (2-7) &middot; Lecture 2C, slide 3"
   }
+  ]
+}
 ];
 
 const form = document.getElementById("quiz");
 const scoreBox = document.getElementById("score");
-let order = QUESTIONS.map((_, i) => i);
+const modTitle = document.getElementById("modtitle");
+const TAG = { one: "one answer", many: "select all", tf: "true / false", fill: "fill in" };
+
+let activeMod = 0;
+let order = [];
 let graded = false;
 
-const TAG = { one: "one answer", many: "select all", tf: "true / false", fill: "fill in" };
+function questions() { return MODULES[activeMod].questions; }
 
 function render() {
   graded = false;
   scoreBox.hidden = true;
   document.getElementById("retry").hidden = true;
+  document.getElementById("submit").disabled = false;
+  document.getElementById("submit2").disabled = false;
+  modTitle.textContent = MODULES[activeMod].name + " · " + questions().length + " questions";
   form.innerHTML = "";
 
   order.forEach((qi, n) => {
-    const q = QUESTIONS[qi];
+    const q = questions()[qi];
     const card = document.createElement("div");
     card.className = "q";
     card.dataset.qi = qi;
@@ -369,8 +404,7 @@ function render() {
         const lab = document.createElement("label");
         lab.className = "opt";
         lab.dataset.oi = oi;
-        lab.innerHTML =
-          `<input type="${kind}" name="q${qi}" value="${oi}"><span>${opt}</span>`;
+        lab.innerHTML = `<input type="${kind}" name="q${qi}" value="${oi}"><span>${opt}</span>`;
         card.appendChild(lab);
       });
     }
@@ -388,14 +422,17 @@ function grade() {
   let correct = 0;
 
   order.forEach(qi => {
-    const q = QUESTIONS[qi];
+    const q = questions()[qi];
     const card = form.querySelector(`[data-qi="${qi}"]`);
     let ok = false;
 
     if (q.type === "fill") {
       const inp = card.querySelector("input[type=text]");
       const given = normalize(inp.value);
-      ok = q.answer.some(a => normalize(a) === given || given === normalize(a) + " theory");
+      ok = q.answer.some(a => {
+        const n = normalize(a);
+        return given === n || given === n + " space" || given === n + " theory";
+      });
       inp.disabled = true;
       inp.style.borderColor = ok ? "var(--good)" : "var(--bad)";
       if (!ok) {
@@ -407,11 +444,9 @@ function grade() {
     } else {
       const picked = [...card.querySelectorAll("input:checked")].map(i => +i.value);
       ok = picked.length === q.answer.length && picked.every(p => q.answer.includes(p));
-
       card.querySelectorAll("label.opt").forEach(lab => {
         const oi = +lab.dataset.oi;
-        const input = lab.querySelector("input");
-        input.disabled = true;
+        lab.querySelector("input").disabled = true;
         const isAnswer = q.answer.includes(oi);
         const chosen = picked.includes(oi);
         if (isAnswer) {
@@ -442,43 +477,47 @@ function grade() {
   const pct = Math.round((correct / total) * 100);
   scoreBox.hidden = false;
   scoreBox.innerHTML = `
-    <h2>Score</h2>
+    <h2>${MODULES[activeMod].name.split(" - ")[0]} score</h2>
     <div class="pct">${correct} / ${total} &middot; ${pct}%</div>
     <div class="bar"><div></div></div>
     <div class="breakdown">${
       pct === 100 ? "Every one. Nothing left to review."
-      : pct >= 80 ? "Solid. Read the notes on the ones you missed."
-      : pct >= 50 ? "Worth another pass through the Module 1 and 2 notes."
+      : pct >= 80 ? "Solid. Read back over the ones you missed."
+      : pct >= 50 ? "Worth another pass through the notes for this module."
       : "Start with the lecture notes before retrying."
     }</div>`;
-  requestAnimationFrame(() => {
-    scoreBox.querySelector(".bar > div").style.width = pct + "%";
-  });
+  requestAnimationFrame(() => { scoreBox.querySelector(".bar > div").style.width = pct + "%"; });
   document.getElementById("retry").hidden = false;
   document.getElementById("submit").disabled = true;
   document.getElementById("submit2").disabled = true;
   scoreBox.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function reset() {
-  document.getElementById("submit").disabled = false;
-  document.getElementById("submit2").disabled = false;
+function load(mod, shuffle) {
+  activeMod = mod;
+  order = questions().map((_, i) => i);
+  if (shuffle) {
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+  }
   render();
-  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", t === tab));
+    load(+tab.dataset.mod, false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+});
 document.getElementById("submit").onclick = grade;
 document.getElementById("submit2").onclick = grade;
-document.getElementById("retry").onclick = reset;
-document.getElementById("shuffle").onclick = () => {
-  for (let i = order.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [order[i], order[j]] = [order[j], order[i]];
-  }
-  reset();
-};
+document.getElementById("retry").onclick = () => { load(activeMod, false); window.scrollTo({ top: 0, behavior: "smooth" }); };
+document.getElementById("shuffle").onclick = () => { load(activeMod, true); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
-render();
+load(0, false);
 </script>
 </body>
 </html>
