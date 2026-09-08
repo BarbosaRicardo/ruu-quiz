@@ -171,7 +171,7 @@ const MODULES = [
       "If &alpha; &cap; &beta; = &empty; then P(&alpha; &cup; &beta;) = P(&alpha;) + P(&beta;)",
       "P(&alpha; | &beta;) = P(&alpha;) for all &alpha;, &beta; &isin; &Omega;"
     ],
-    answer: [3],
+    wrong:{0:"this <em>is</em> axiom 1, non-negativity. Picking it means you read the question as 'which is an axiom' rather than 'which is not'.", 1:"this <em>is</em> axiom 2, normalization. Same reversal.", 2:"this <em>is</em> axiom 3, additivity for disjoint events. If you chose one of the first three, reread the stem: it asks for the intruder."}, answer: [3],
     why: "The fourth is the definition of independence, and it certainly does not hold for every pair of events. The first three are the axioms.",
     src: "Notes Def. 1.6 (1-5) &middot; Lecture 1B, slide 5"
   },
@@ -197,7 +197,7 @@ const MODULES = [
       "Neither, because betting odds are not probabilities",
       "Both equally, since the two interpretations coincide for sporting events"
     ],
-    answer: [1],
+    wrong:{0:"betting markets do aggregate information, but the number is not a relative frequency of anything. The notes say so directly: it &ldquo;does not represent any relative frequency or ratio of victories.&rdquo;", 2:"they are probabilities under the subjective reading. Rejecting them entirely throws out the interpretation the whole course adopts.", 3:"if the two interpretations coincided there would be no Module 2. This specific fight happened once and cannot be repeated."}, answer: [1],
     why: "The notes are explicit: the number \"does not represent any relative frequency or ratio of victories. It is simply the houses belief that Mayweather Jr. would win.\" That specific fight happened exactly once.",
     src: "Notes Example 3 (1-4) &middot; Lecture 1A, slide 9"
   },
@@ -210,7 +210,7 @@ const MODULES = [
       "P(A<sub>4</sub>|A<sub>3</sub>) &middot; P(A<sub>3</sub>|A<sub>2</sub>) &middot; P(A<sub>2</sub>|A<sub>1</sub>) &middot; P(A<sub>1</sub>)",
       "P(A<sub>1</sub>|A<sub>2</sub>&cap;A<sub>3</sub>&cap;A<sub>4</sub>) &middot; P(A<sub>4</sub>&cap;A<sub>3</sub>&cap;A<sub>2</sub>)"
     ],
-    answer: [1],
+    wrong:{0:"that is the fully independent case. It assumes every event is independent of every other, which the chain rule never assumes. If this were valid you would not need conditional probability at all.", 2:"this conditions each factor only on the <em>immediately</em> preceding event, which is a Markov assumption you were not given. The chain rule conditions on <b>all</b> previous events. Making this substitution silently is how people build first-order models and then wonder why long-range dependence is missing.", 3:"the first factor is wrong. Conditioning A&#8321; on everything else is legal algebra but the remaining term is not expanded, so this is not a full chain-rule expansion."}, answer: [1],
     why: "Each factor conditions on <em>all</em> the events that follow it, not just the next one. Option 1 assumes full independence; option 3 assumes a Markov-style chain, which the rule does not.",
     src: "Notes Example 5, eq. 1.7-1.9 (1-7) &middot; Lecture 1B, slide 12"
   },
@@ -223,7 +223,7 @@ const MODULES = [
       "A subset of the sample space with unknown probability",
       "A distribution over the events in &Omega;"
     ],
-    answer: [0],
+    wrong:{1:"this is the most common misreading, and it is what the bad name invites. A random variable is neither random nor a variable: it is a deterministic function. The randomness lives in &Omega;, not in X.", 2:"that describes an <em>event</em>, which is a subset of &Omega;. A random variable is a mapping from &Omega; to the reals.", 3:"that is a distribution. The random variable is the function; the distribution is what you get by pushing P through it."}, answer: [0],
     why: "A random variable is a function on the sample space, not a variable in the ordinary sense and not random by itself. In the craps example X(i,j) = i + j maps each of the 36 dice pairs to a sum.",
     src: "Notes &sect;1.4.2.4 (1-8) &middot; Lecture 1C, slides 3-4"
   },
@@ -243,7 +243,7 @@ const MODULES = [
       "P satisfies (E &perp; F) if and only if P(E &cap; F) = P(E)P(F)",
       "Two mutually exclusive events with nonzero probability are independent"
     ],
-    answer: [0, 1, 2],
+    wrong:{3:"mutually exclusive events are the <em>opposite</em> of independent. If A and B cannot co-occur, learning A occurred tells you B definitely did not, which is maximal dependence. Confusing disjoint with independent will wreck any joint probability you compute."}, answer: [0, 1, 2],
     why: "The first three are stated directly in the notes. The fourth is false and worth remembering: if A and B are mutually exclusive, learning that A occurred tells you B did not, which is maximal dependence rather than independence.",
     src: "Notes Def. 1.14 and Prop. 1.15 (1-10) &middot; Lecture 1C, slide 8"
   },
@@ -266,13 +266,13 @@ const MODULES = [
     src:"Koller Prop. 2.4, book p. 32" },
   { type:"tf",
     q:"Var[X + Y] = Var[X] + Var[Y] holds for any two random variables.",
-    answer:[1],
+    wrong:{0:"believing this is a real hazard. It needs independence, unlike linearity of expectation. When variables share a hidden common cause, the covariance term you dropped is exactly the risk you failed to account for, and your interval comes out too narrow."}, answer:[1],
     why:"False. Variance adds only under <em>independence</em>. Compare with linearity of expectation, which needs no assumption. Assuming variances add when a hidden common cause exists is how confidence intervals come out too narrow.",
     src:"Koller Prop. 2.6, book p. 33" },
   { type:"one",
     q:"Chebyshev's inequality, P(|X &minus; &#120124;[X]| &ge; t) &le; Var[X]/t&sup2;, requires which assumption?",
     options:["Only a finite variance","That X is Gaussian","That X is non-negative","That X and its mean are independent"],
-    answer:[0],
+    wrong:{1:"no distributional assumption is needed, and that is the entire appeal. Assuming Gaussian would let you compute an exact probability rather than a bound, but you would have to justify the assumption.", 2:"non-negativity is what <b>Markov's</b> inequality needs. Chebyshev is in fact derived from Markov applied to the squared deviation.", 3:"X is never independent of its own mean; the mean is a number, not a random variable."}, answer:[0],
     why:"That is the appeal: no distributional shape is assumed. In exchange it gives a loose upper bound rather than an answer. Non-negativity is what Markov's inequality needs instead.",
     src:"Koller Thm. 2.1, book p. 33" },
   { type:"one",
@@ -292,7 +292,7 @@ const MODULES = [
       "A path may repeat nodes; a trail may not",
       "A path is undirected; a trail is directed",
       "There is no difference; the terms are interchangeable"],
-    answer:[0],
+    wrong:{1:"repetition of nodes is not what separates them; direction is. Both may revisit nodes.", 2:"backwards. Both can exist in a directed graph; a path respects arrows and a trail ignores them.", 3:"they are genuinely different, and the difference is load-bearing. Influence in a Bayesian network flows along <b>trails</b>, so treating them as synonyms breaks d-separation."}, answer:[0],
     why:"Driving with the one-way signs versus walking and ignoring them. Every path is therefore also a trail, but not the reverse. This distinction is what makes d-separation work, since influence flows along trails.",
     src:"Koller Def. 2.15 and 2.16, book p. 36" },
   { type:"one",
@@ -302,7 +302,7 @@ const MODULES = [
       "A cycle has length 3 or more; a loop has length 2",
       "A cycle occurs in undirected graphs, a loop in directed graphs",
       "A loop must contain a chord; a cycle need not"],
-    answer:[0],
+    wrong:{1:"length is irrelevant to the distinction. Both are about whether you may walk against arrows.", 2:"both terms apply to directed graphs. The cycle uses a directed path, the loop uses a trail.", 3:"chords belong to the definition of chordal graphs, not to loops as such."}, answer:[0],
     why:"Loop is to trail as cycle is to path. A graph can be perfectly acyclic and still be full of loops, which is exactly why singly connected graphs are the easy case for inference.",
     src:"Koller Def. 2.20 and 2.22, book pp. 37-38" },
   { type:"one",
@@ -312,7 +312,7 @@ const MODULES = [
       "X is the largest clique in the graph",
       "X contains every node in the graph",
       "X has no chords"],
-    answer:[0],
+    wrong:{1:"that is <b>maximum</b>, not maximal. Maximal means locally un-extendable: you cannot add a node to <em>this</em> clique. A three-node maximal clique can coexist with a five-node clique elsewhere. Inference cost depends on the largest clique, so conflating these two will make you underestimate it.", 2:"that would be a complete graph, a much stronger condition.", 3:"chords are about loops in chordal graphs, not about cliques."}, answer:[0],
     why:"Maximal is local: you cannot extend this one. Maximum is global. A three-node maximal clique can sit in a graph that also has a five-node clique elsewhere.",
     src:"Koller Def. 2.13, book p. 35" },
   { type:"one",
@@ -448,7 +448,7 @@ const MODULES = [
   {
     type: "tf",
     q: "Cox concludes that every measure of reasonable expectation is also a frequency in some ensemble, making the choice between the two interpretations moot.",
-    answer: [1],
+    wrong:{0:"this is the claim Cox <em>tests and rejects</em>. If it held, the choice between interpretations would be moot and there would be nothing to argue about. His counterexample is that frequency does not even connect statistical mechanics to thermodynamics."}, answer: [1],
     why: "False. Cox writes that \"there is a field of probable inference which lies outside the range of that theory,\" so frequency rules cannot be justified there. Cases where an ensemble can genuinely be constructed are rare, and the frequency definition does not even suffice to connect statistical mechanics to thermodynamics.",
     src: "Notes &sect;2.3.1 (2-9) and &sect;2.3.3 (2-11) &middot; Lecture 2D, slides 5 and 11"
   },
@@ -492,7 +492,7 @@ const MODULES = [
     src:"Notes &sect;2.3.1 (2-9) &middot; Lecture 2D" },
   { type:"tf",
     q:"Under Cheeseman's view, two ideal believers given exactly the same information may still legitimately assign different probabilities.",
-    answer:[1],
+    wrong:{0:"choosing True drops Corollary 2.7(c), and dropping it inverts Cheeseman's position into 'anything goes'. His defence of subjective probability depends on the claim that identical information forces identical belief."}, answer:[1],
     why:"False, and this is the clause students drop. Probabilities are subjective in that the value depends on the believer's information, but <em>objective</em> in that the same ideal believers with the same information should arrive at the same value. That is what stops subjectivism from becoming 'anything goes.'",
     src:"Notes Cor. 2.7(c) (2-5) &middot; Lecture 2B" },
   { type:"one",
@@ -522,7 +522,7 @@ const MODULES = [
       "That probability is a frequency ratio",
       "That priors assume more information than is given",
       "That numbers are not necessary at all"],
-    answer:[0],
+    wrong:{1:"that is misconception 1, answered by redefining probability as a measure of belief, not by an analogy from mechanics.", 2:"that is the North Atlantic ship argument.", 3:"that is the 'numbers are not necessary' objection, answered by noting that the most probable option can still be wildly unlikely."}, answer:[0],
     why:"A complex body can be replaced by a point mass at its centre of gravity and give identical results. How many numbers you need depends on the question, so if no further evidence is coming, one number suffices. The target is Dempster-Shafer, which always makes you carry belief and plausibility.",
     src:"Notes &sect;2.2.3 item 5 (2-7) &middot; Lecture 2B, slide 6" },
   { type:"one",
@@ -606,166 +606,202 @@ const form = document.getElementById("quiz");
 const scoreBox = document.getElementById("score");
 const TAG = { one:"one answer", many:"select all", tf:"true / false", fill:"fill in" };
 
-let sel = [], mode = "sample", POOL = [], order = [], graded = false;
+let sel = [], mode = "sample", POOL = [], order = [], done = {};
 
 function readURL() {
   const q = new URLSearchParams(location.search);
   const raw = (q.get("m") || q.get("module") || "").trim();
-  if (raw) {
-    sel = raw.split(/[,+ ]+/).map(v => parseInt(v, 10) - 1)
-             .filter(i => Number.isInteger(i) && i >= 0 && i < BANKS.length);
-  }
+  if (raw) sel = raw.split(/[,+ ]+/).map(v => parseInt(v,10)-1)
+                    .filter(i => Number.isInteger(i) && i>=0 && i<BANKS.length);
   if (!sel.length) sel = [0];
   mode = q.get("mode") === "all" ? "all" : "sample";
 }
 function syncURL() {
   const q = new URLSearchParams();
-  q.set("m", sel.map(i => i + 1).join(","));
-  q.set("mode", mode);
+  q.set("m", sel.map(i=>i+1).join(",")); q.set("mode", mode);
   const url = location.pathname + "?" + q.toString();
   history.replaceState(null, "", url);
   document.getElementById("permalink").innerHTML =
     `Link to this set: <a href="${url}">${location.origin + url}</a>`;
 }
-function drawChips() {
-  document.getElementById("bankPick").innerHTML = BANKS.map((b, i) =>
-    `<button class="chip" data-i="${i}" aria-pressed="${sel.includes(i)}">${b.name.split(" - ")[0]}</button>`
-  ).join("");
-  document.querySelectorAll(".chip").forEach(c => c.onclick = () => {
-    const i = +c.dataset.i;
-    if (sel.includes(i)) { if (sel.length > 1) sel = sel.filter(v => v !== i); }
-    else sel = [...sel, i].sort((a, b) => a - b);
-    drawChips(); build();
+function chipRow(el, items, cur, cb) {
+  const lbl = el.querySelector(".lbl"); el.innerHTML = ""; if (lbl) el.appendChild(lbl);
+  items.forEach(([v,label]) => {
+    const b = document.createElement("button");
+    b.className="chip"; b.dataset.v=v;
+    b.setAttribute("aria-pressed", String(Array.isArray(cur) ? cur.includes(v) : cur===v));
+    b.textContent=label; b.onclick=()=>cb(v); el.appendChild(b);
   });
-  document.querySelectorAll("#modeSeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode));
 }
-function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function paintChips() {
+  chipRow(document.getElementById("bankPick"),
+    BANKS.map((b,i)=>[i, b.name.replace(/ - .*/,"")]), sel,
+    i => { if (sel.includes(i)) { if (sel.length>1) sel=sel.filter(v=>v!==i); }
+           else sel=[...sel,i].sort((a,b)=>a-b); paintChips(); build(); });
+  document.querySelectorAll("#modeSeg button").forEach(b =>
+    b.setAttribute("aria-pressed", b.dataset.mode === mode));
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 function build() {
   POOL = [];
-  sel.forEach(i => BANKS[i].questions.forEach(q => POOL.push({ ...q, bank: BANKS[i].name })));
-  order = POOL.map((_, i) => i);
+  sel.forEach(i => BANKS[i].questions.forEach(q => POOL.push({...q, bank: BANKS[i].name})));
+  order = POOL.map((_,i)=>i);
   if (mode === "sample") order = shuffle(order).slice(0, Math.min(10, order.length));
   syncURL();
-  document.getElementById("poolInfo").textContent =
-    mode === "sample"
-      ? `${order.length} drawn at random from a bank of ${POOL.length}`
-      : `all ${POOL.length} questions`;
+  document.getElementById("poolInfo").textContent = mode === "sample"
+    ? `${order.length} drawn at random from a bank of ${POOL.length}`
+    : `all ${POOL.length} questions`;
   render();
 }
 
 function render() {
-  graded = false;
+  done = {};
   scoreBox.hidden = true;
   document.getElementById("retry").hidden = true;
   document.getElementById("submit").disabled = false;
   document.getElementById("submit2").disabled = false;
   form.innerHTML = "";
   const multi = sel.length > 1;
-
   order.forEach((qi, n) => {
     const q = POOL[qi];
     const card = document.createElement("div");
-    card.className = "q"; card.dataset.qi = qi;
+    card.className="q"; card.dataset.qi=qi;
     const head = document.createElement("div");
-    head.className = "qhead";
-    head.innerHTML = `<span class="qnum">Question ${n + 1}</span>` +
-      (multi ? `<span class="bankTag">${q.bank.split(" - ")[0]}</span>` : "") +
+    head.className="qhead";
+    head.innerHTML = `<span class="qnum">Question ${n+1}</span>` +
+      (multi ? `<span class="bankTag">${q.bank.replace(/ - .*/,"")}</span>` : "") +
       `<span class="tag">${TAG[q.type]}</span>`;
     card.appendChild(head);
     const text = document.createElement("p");
-    text.className = "qtext"; text.innerHTML = q.q;
-    card.appendChild(text);
-
+    text.className="qtext"; text.innerHTML=q.q; card.appendChild(text);
     if (q.type === "fill") {
-      const inp = document.createElement("input");
-      inp.type = "text"; inp.placeholder = "your answer"; inp.name = "q" + qi;
-      card.appendChild(inp);
+      const inp=document.createElement("input");
+      inp.type="text"; inp.placeholder="your answer"; inp.name="q"+qi; card.appendChild(inp);
     } else {
-      const opts = q.type === "tf" ? ["True", "False"] : q.options;
-      const kind = q.type === "many" ? "checkbox" : "radio";
-      opts.forEach((opt, oi) => {
-        const lab = document.createElement("label");
-        lab.className = "opt"; lab.dataset.oi = oi;
-        lab.innerHTML = `<input type="${kind}" name="q${qi}" value="${oi}"><span>${opt}</span>`;
+      const opts = q.type==="tf" ? ["True","False"] : q.options;
+      const kind = q.type==="many" ? "checkbox" : "radio";
+      opts.forEach((opt,oi)=>{
+        const lab=document.createElement("label");
+        lab.className="opt"; lab.dataset.oi=oi;
+        lab.innerHTML=`<input type="${kind}" name="q${qi}" value="${oi}"><span>${opt}</span>`;
         card.appendChild(lab);
       });
     }
+    const btn = document.createElement("button");
+    btn.className="checkbtn"; btn.type="button"; btn.textContent="Check this answer";
+    btn.onclick = () => checkOne(qi);
+    card.appendChild(btn);
     form.appendChild(card);
   });
 }
 
-function normalize(s) { return s.toLowerCase().trim().replace(/\s+/g, " ").replace(/[.?!]$/, ""); }
+function normalize(s){ return s.toLowerCase().trim().replace(/\s+/g," ").replace(/[.?!]$/,""); }
+const optText = (q,i) => q.type==="tf" ? ["True","False"][i] : q.options[i];
 
-function grade() {
-  if (graded) return;
-  graded = true;
-  let correct = 0;
-  order.forEach(qi => {
-    const q = POOL[qi];
-    const card = form.querySelector(`[data-qi="${qi}"]`);
-    let ok = false;
-    if (q.type === "fill") {
-      const inp = card.querySelector("input[type=text]");
-      const given = normalize(inp.value);
-      ok = q.answer.some(a => { const n = normalize(a);
-        return given === n || given === n + " theory" || given === n + " space" || given === n + " parameter"; });
-      inp.disabled = true;
-      inp.style.borderColor = ok ? "var(--good)" : "var(--bad)";
-      if (!ok) { const p = document.createElement("p"); p.className = "src";
-        p.innerHTML = `Correct answer: <b>${q.answer[0]}</b>`; inp.after(p); }
-    } else {
-      const picked = [...card.querySelectorAll("input:checked")].map(i => +i.value);
-      ok = picked.length === q.answer.length && picked.every(p => q.answer.includes(p));
-      card.querySelectorAll("label.opt").forEach(lab => {
-        const oi = +lab.dataset.oi;
-        lab.querySelector("input").disabled = true;
-        const isAns = q.answer.includes(oi), chosen = picked.includes(oi);
-        if (isAns) { lab.classList.add("correct");
-          const m = document.createElement("span"); m.className = "mark g";
-          m.textContent = chosen ? "correct" : "correct answer"; lab.appendChild(m); }
-        else if (chosen) { lab.classList.add("wrong");
-          const m = document.createElement("span"); m.className = "mark b";
-          m.textContent = "your answer"; lab.appendChild(m); }
-      });
+function checkOne(qi) {
+  if (done[qi] !== undefined) return done[qi];
+  const q = POOL[qi];
+  const card = form.querySelector(`[data-qi="${qi}"]`);
+  let ok=false, picked=[];
+
+  if (q.type === "fill") {
+    const inp = card.querySelector("input[type=text]");
+    const given = normalize(inp.value);
+    ok = q.answer.some(a=>{const n=normalize(a);
+      return given===n || given===n+" theory" || given===n+" space" || given===n+" parameter";});
+    inp.disabled = true;
+    inp.style.borderColor = ok ? "var(--good)" : "var(--bad)";
+  } else {
+    picked = [...card.querySelectorAll("input:checked")].map(i=>+i.value);
+    ok = picked.length===q.answer.length && picked.every(p=>q.answer.includes(p));
+    card.querySelectorAll("label.opt").forEach(lab=>{
+      const oi=+lab.dataset.oi;
+      lab.querySelector("input").disabled=true;
+      const isAns=q.answer.includes(oi), chosen=picked.includes(oi);
+      if (isAns) { lab.classList.add("correct");
+        const m=document.createElement("span"); m.className="mark g";
+        m.textContent = chosen ? "correct" : "correct answer"; lab.appendChild(m); }
+      else if (chosen) { lab.classList.add("wrong");
+        const m=document.createElement("span"); m.className="mark b";
+        m.textContent="your answer"; lab.appendChild(m); }
+    });
+  }
+
+  card.querySelector(".checkbtn")?.remove();
+
+  const why=document.createElement("div");
+  why.className="why";
+  why.innerHTML = `<b>${ok ? "Correct" : "Not quite"}</b>${q.why}`;
+  card.appendChild(why);
+
+  if (!ok) {
+    const chosen = q.type==="fill"
+      ? [] : picked.filter(i => !q.answer.includes(i));
+    const missed = q.type==="fill"
+      ? [] : q.answer.filter(i => !picked.includes(i));
+    let html = "";
+    chosen.forEach(i => {
+      const custom = q.wrong && q.wrong[i];
+      html += `<p><b>&ldquo;${optText(q,i)}&rdquo;</b> &mdash; ` +
+        (custom || `not the answer here. The explanation above gives the one that is; the reading below settles it.`) + `</p>`;
+    });
+    if (q.type==="fill" && !ok) {
+      html += `<p>The answer is <b>${q.answer[0]}</b>. ${(q.wrong && q.wrong.fill) || "Check the spelling and note that only the missing word goes in the box."}</p>`;
     }
-    if (ok) correct++;
-    const why = document.createElement("div");
-    why.className = "why";
-    why.innerHTML = `<b>${ok ? "Correct" : "Not quite"}</b>${q.why}<div class="src">${q.src}</div>`;
-    card.appendChild(why);
-  });
+    if (missed.length) {
+      html += `<p><b>You missed:</b> ` + missed.map(i=>`&ldquo;${optText(q,i)}&rdquo;`).join(", ") +
+        `. On a select-all, leaving a correct option out costs the same as adding a wrong one.</p>`;
+    }
+    if (html) {
+      const wb=document.createElement("div");
+      wb.className="wrongbox";
+      wb.innerHTML=`<div class="l">Why your choice does not work</div>${html}`;
+      card.appendChild(wb);
+    }
+  }
 
-  const total = order.length, pct = Math.round(correct / total * 100);
-  scoreBox.hidden = false;
-  scoreBox.innerHTML = `
-    <h2>${sel.map(i => BANKS[i].name.split(" - ")[0]).join(" + ")}</h2>
+  const rn=document.createElement("div");
+  rn.className="readnext";
+  rn.innerHTML=`<div class="l">Read next</div>${q.src}`;
+  card.appendChild(rn);
+
+  done[qi]=ok;
+  if (Object.keys(done).length === order.length) showScore();
+  return ok;
+}
+
+function showScore() {
+  const total=order.length;
+  const correct=order.filter(qi=>done[qi]).length;
+  const pct=Math.round(correct/total*100);
+  scoreBox.hidden=false;
+  scoreBox.innerHTML=`
+    <h2>${sel.map(i=>BANKS[i].name.replace(/ - .*/,"")).join(" + ")}</h2>
     <div class="pct">${correct} / ${total} &middot; ${pct}%</div>
     <div class="bar"><div></div></div>
     <div class="breakdown">${
-      pct === 100 ? "Every one. Draw another set to be sure it wasn't the luck of the shuffle."
-      : pct >= 80 ? "Solid. Read back over the ones you missed."
-      : pct >= 50 ? "Worth another pass through the notes before the next draw."
-      : "Start with the source material, then come back."
-    }</div>`;
-  requestAnimationFrame(() => { scoreBox.querySelector(".bar > div").style.width = pct + "%"; });
-  document.getElementById("retry").hidden = false;
-  document.getElementById("submit").disabled = true;
-  document.getElementById("submit2").disabled = true;
-  scoreBox.scrollIntoView({ behavior: "smooth", block: "start" });
+      pct===100 ? "Every one. Draw another set to be sure it wasn't the shuffle."
+      : pct>=80 ? "Solid. Read the Read next line on anything you missed."
+      : pct>=50 ? "Worth another pass through the sources before the next draw."
+      : "Start with the source material, then come back."}</div>`;
+  requestAnimationFrame(()=>{scoreBox.querySelector(".bar > div").style.width=pct+"%";});
+  document.getElementById("retry").hidden=false;
+  document.getElementById("submit").disabled=true;
+  document.getElementById("submit2").disabled=true;
 }
 
-document.getElementById("submit").onclick = grade;
-document.getElementById("submit2").onclick = grade;
-document.getElementById("retry").onclick = () => { render(); window.scrollTo({ top: 0, behavior: "smooth" }); };
-document.getElementById("newSet").onclick = () => { build(); window.scrollTo({ top: 0, behavior: "smooth" }); };
-document.getElementById("modeSeg").onclick = e => {
-  const b = e.target.closest("button"); if (!b) return;
-  mode = b.dataset.mode; drawChips(); build();
-};
+function gradeAll(){ order.forEach(qi=>checkOne(qi));
+  scoreBox.scrollIntoView({behavior:"smooth",block:"start"}); }
 
-readURL(); drawChips(); build();
+document.getElementById("submit").onclick=gradeAll;
+document.getElementById("submit2").onclick=gradeAll;
+document.getElementById("retry").onclick=()=>{render();window.scrollTo({top:0,behavior:"smooth"});};
+document.getElementById("newSet").onclick=()=>{build();window.scrollTo({top:0,behavior:"smooth"});};
+document.getElementById("modeSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+  mode=b.dataset.mode;paintChips();build();};
 
+readURL(); paintChips(); build();
 </script>
 </body>
 </html>
