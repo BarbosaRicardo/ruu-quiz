@@ -606,6 +606,87 @@ const form = document.getElementById("quiz");
 const scoreBox = document.getElementById("score");
 const TAG = { one:"one answer", many:"select all", tf:"true / false", fill:"fill in" };
 
+/* ---- turn source citations into links that open the exact file and page ---- */
+const REPO = "https://github.com/BarbosaRicardo/JHU-AI-Masters-Program/blob/main/";
+const F = {
+  ruuNotes1: REPO+"EN.605.745.81.FA26/module01/readings/Lecture_1_Notes_v2.pdf",
+  ruuNotes2: REPO+"EN.605.745.81.FA26/module02/readings/Lecture%202%20Notes.pdf",
+  koller:    REPO+"EN.605.745.81.FA26/Textbook/Probabilistic%20Graphical%20Models%20-%20Principles%20and%20Techniques.pdf",
+  cheeseman: REPO+"EN.605.745.81.FA26/module02/readings/indefenseofprob.pdf",
+  coxPdf:    REPO+"EN.605.745.81.FA26/module02/readings/ProbabilityFrequencyReasonableExpectation.pdf",
+  amlSlides1:REPO+"EN.705.742.81.FA26/module01/readings/module01B_aml_hyperparameter.pdf",
+  amlSlides2:REPO+"EN.705.742.81.FA26/module02/readings/module02B_aml_feature.pdf",
+  raschka:   REPO+"EN.705.742.81.FA26/Textbook/Machine%20Learning%20with%20Pytorch%20and%20Scikit-Learn.pdf",
+  yang:      REPO+"EN.705.742.81.FA26/module01/readings/Yang_Shami_Hyperparameter_Optimization.pdf",
+  lee:       REPO+"EN.705.742.81.FA26/module02/readings/Efficient_sparse_coding_algorithms.pdf",
+  tr1:       REPO+"EN.705.742.81.FA26/module01/transcripts/",
+  tr2:       REPO+"EN.705.742.81.FA26/module02/transcripts/",
+  ruuLec1:   REPO+"EN.605.745.81.FA26/module01/lectures/",
+  ruuLec2:   REPO+"EN.605.745.81.FA26/module02/lectures/"
+};
+const RUU_LEC = { "1A":"Lecture%201A.pdf","1B":"Lecture%201B.pdf","1C":"Lecture%201C.pdf",
+  "2A":"Lecture%202A%20-%20Logical%20Reasoning.pdf","2B":"Lecture%202B%20-%20Probability%20Misconceptions.pdf",
+  "2C":"Lecture%202C%20-%20Probability%20Conceptions.pdf","2D":"Lecture%202D%20-%20Frequency%20vs%20Expectation.pdf" };
+const AML_TR = {
+  "Hyperparameter Optimization transcript":[1,"Hyperparameter%20Optimization_Captions_Default.txt"],
+  "PSO and Bayesian Optimizations transcript":[1,"PSO%20and%20Bayesian%20Optimizations_Captions_Default.txt"],
+  "Early Stopping transcript":[1,"Early%20Stopping%20in%20Optimization_Captions_Default.txt"],
+  "Feature Selection and Extraction Introduction transcript":[2,"Feature%20Selection%20and%20Extraction%20Introduction_Captions_Default.txt"],
+  "Feature Selection and Extraction transcript":[2,"Feature%20Selection%20and%20Extraction_Captions_Default.txt"],
+  "Tf-Idf Features and Autoencoders transcript":[2,"Tf-Idf%20Features%20and%20Autoencoders_Captions_Default.txt"],
+  "Autoencoder Example transcript":[2,"Autoencoder%20Example_Captions_Default.txt"],
+  "Sparse Coding transcript":[2,"Sparse%20Coding_Captions_Default.txt"] };
+
+function A(url, text, page) {
+  return `<a href="${url}${page?("#page="+page):""}" target="_blank" rel="noopener">${text}</a>`;
+}
+function linkify(src, bank) {
+  const m2 = /Module 2/.test(bank || "");
+  let s = " " + src + " ";
+
+  // AML transcripts (longest names first)
+  Object.keys(AML_TR).sort((a,b)=>b.length-a.length).forEach(name => {
+    if (s.includes(name)) {
+      const [mod, file] = AML_TR[name];
+      s = s.split(name).join(A((mod===1?F.tr1:F.tr2)+file, name));
+    }
+  });
+  // AML slides
+  s = s.replace(/Slides pp?\. ([\d\-, and]+)/g, (full, pgs) => {
+    const first = (pgs.match(/\d+/) || [1])[0];
+    return A(m2 ? F.amlSlides2 : F.amlSlides1, full, first);
+  });
+  // Raschka: pdf page given directly
+  s = s.replace(/Raschka(?:(?!<\/?a)[\s\S]){0,90}?pdf pp?\. (\d+)(?:-\d+)?/g,
+    (full, p) => A(F.raschka, full, p));
+  s = s.replace(/(Raschka ch\. \d+)(?![^<]*<\/a>)/g, (full) => A(F.raschka, full));
+  // Yang and Shami, Lee et al.
+  s = s.replace(/Yang and Shami/g,
+    A(F.yang, "Yang and Shami") + ' <span class="doi">' + A("https://doi.org/10.1016/j.neucom.2020.07.061","doi") + '</span>');
+  s = s.replace(/Lee et al\./g, A(F.lee, "Lee et al."));
+
+  // RUU lecture notes: page label like (1-5) or (2-7)
+  s = s.replace(/\(([12])-(\d+)\)/g, (full, mod, pg) =>
+    "(" + A(mod === "1" ? F.ruuNotes1 : F.ruuNotes2, mod + "-" + pg, pg) + ")");
+  s = s.replace(/Notes (Def\.|Cor\.|Prop\.|Example|&sect;|§)/g, (full, kw) =>
+    A(m2 ? F.ruuNotes2 : F.ruuNotes1, "Notes") + " " + kw);
+  // RUU lecture decks
+  s = s.replace(/Lecture ([12][A-D])(,? slides? ([\d]+))?/g, (full, id, _x, slide) => {
+    const base = id[0] === "1" ? F.ruuLec1 : F.ruuLec2;
+    return A(base + RUU_LEC[id], full, slide);
+  });
+  // Koller: book page -> pdf page + 37
+  s = s.replace(/Koller(?:(?!<\/?a)[\s\S]){0,70}?book pp?\. (\d+)(?:-\d+)?/g,
+    (full, p) => A(F.koller, full, parseInt(p,10) + 37));
+  s = s.replace(/(Koller (?:&sect;|§|Def\.|Prop\.|Thm\.|Example|ch\.)[^&<,]*)(?![^<]*<\/a>)/g,
+    (full) => A(F.koller, full));
+  s = s.replace(/Cox 1946/g, A(F.coxPdf, "Cox 1946") +
+    ' <span class="doi">' + A("https://doi.org/10.1119/1.1990764","doi") + '</span>');
+  s = s.replace(/Cheeseman(?![^<]*<\/a>)/g, A(F.cheeseman, "Cheeseman"));
+  return s.trim();
+}
+
+
 let sel = [], mode = "sample", POOL = [], order = [], done = {};
 
 function readURL() {
@@ -763,7 +844,8 @@ function checkOne(qi) {
 
   const rn=document.createElement("div");
   rn.className="readnext";
-  rn.innerHTML=`<div class="l">Read next</div>${q.src}`;
+  rn.innerHTML=`<div class="l">Read next</div>${linkify(q.src, q.bank)}` +
+    `<div class="hint">Links open the file in the private repo. PDF page numbers are already converted, so <b>Koller book p. 16</b> opens at pdf page 53.</div>`;
   card.appendChild(rn);
 
   done[qi]=ok;
