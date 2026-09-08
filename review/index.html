@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Review">
+<meta name="theme-color" content="#2f5d8a" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17181a" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" crossorigin="anonymous">
+<title>Spaced Review</title>
+<style>
+  :root {
+    --bg:#f7f7f5; --panel:#fff; --ink:#1c1c1a; --muted:#6b6b66; --line:#dedcd6;
+    --accent:#2f5d8a; --accent-soft:#e8f0f7; --warm:#b5651d; --warm-soft:#fbf0e4;
+    --good:#2f6b45; --good-soft:#e7f2ea; --bad:#8a3232; --bad-soft:#f7e9e9; --grid:#e6e4de;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#17181a; --panel:#202225; --ink:#e8e8e4; --muted:#9b9b95; --line:#34363a;
+      --accent:#7fb0dd; --accent-soft:#23303c; --warm:#e0a45e; --warm-soft:#2f2619;
+      --good:#7fc79a; --good-soft:#1f2f26; --bad:#e08b8b; --bad-soft:#332323; --grid:#2b2d31;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#17181a; --panel:#202225; --ink:#e8e8e4; --muted:#9b9b95; --line:#34363a;
+    --accent:#7fb0dd; --accent-soft:#23303c; --warm:#e0a45e; --warm-soft:#2f2619;
+    --good:#7fc79a; --good-soft:#1f2f26; --bad:#e08b8b; --bad-soft:#332323; --grid:#2b2d31;
+  }
+  * { box-sizing:border-box; }
+  body { background:var(--bg); color:var(--ink); margin:0; padding:0 20px 90px;
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap { max-width:760px; margin:0 auto; }
+  header { padding:34px 0 0; }
+  h1 { font-size:25px; margin:0 0 6px; letter-spacing:-0.015em; }
+  .sub { color:var(--muted); font-size:14px; margin:0 0 6px; }
+  .sub a { color:var(--accent); }
+  h3 { font-size:14px; margin:26px 0 10px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600; }
+
+  .hero { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:22px 24px; margin:20px 0 16px; }
+  .hero .big { font-size:38px; font-weight:650; letter-spacing:-0.02em; line-height:1.1; }
+  .hero .lbl { color:var(--muted); font-size:14px; margin-top:2px; }
+  .hero .why { margin-top:12px; font-size:14px; padding:10px 13px; border-radius:8px; background:var(--accent-soft); }
+  .hero .why.urgent { background:var(--bad-soft); }
+  .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+  button.act { font:inherit; font-size:14px; padding:9px 17px; border-radius:8px; cursor:pointer;
+    border:1px solid var(--line); background:var(--bg); color:var(--ink); }
+  button.act:hover { border-color:var(--accent); }
+  button.primary { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+  button.act:disabled { opacity:.45; cursor:default; }
+
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:11px; padding:18px 20px; margin-bottom:16px; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th { text-align:left; font-weight:600; color:var(--muted); font-size:12px;
+    text-transform:uppercase; letter-spacing:.05em; padding:0 8px 8px 0; }
+  td { padding:9px 8px 9px 0; border-top:1px solid var(--line); vertical-align:middle; }
+  td.num { font-variant-numeric:tabular-nums; text-align:right; }
+  input[type=date] { font:inherit; font-size:14px; padding:6px 9px; border:1px solid var(--line);
+    border-radius:7px; background:var(--bg); color:var(--ink); }
+  input[type=range] { accent-color:var(--accent); width:100%; }
+  .mini { height:6px; background:var(--grid); border-radius:4px; overflow:hidden; min-width:70px; }
+  .mini > div { height:100%; background:var(--good); }
+
+  .fc { display:flex; gap:3px; align-items:flex-end; height:70px; margin-top:6px; }
+  .fc div { flex:1; background:var(--accent); border-radius:2px 2px 0 0; min-height:2px; position:relative; }
+  .fc div.today { background:var(--warm); }
+  .fc div.exam { background:var(--bad); }
+  .fclab { display:flex; gap:3px; font-size:10px; color:var(--muted); margin-top:4px; }
+  .fclab span { flex:1; text-align:center; }
+
+  /* review card */
+  .q { background:var(--panel); border:1px solid var(--line); border-radius:11px; padding:20px 22px; margin-bottom:16px; }
+  .qhead { display:flex; gap:10px; align-items:baseline; margin-bottom:6px; flex-wrap:wrap; }
+  .qnum { color:var(--muted); font-size:13px; }
+  .tag { font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent);
+    background:var(--accent-soft); padding:2px 7px; border-radius:4px; margin-left:auto; }
+  .bankTag { font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);
+    background:var(--bg); border:1px solid var(--line); padding:2px 7px; border-radius:4px; }
+  .qtext { margin:0 0 14px; }
+  label.opt { display:flex; gap:10px; align-items:flex-start; padding:9px 12px; border-radius:7px;
+    cursor:pointer; border:1px solid transparent; }
+  label.opt:hover { background:var(--accent-soft); }
+  label.opt input { margin:4px 0 0; flex:none; }
+  .opt.correct { background:var(--good-soft); border-color:var(--good); }
+  .opt.wrong { background:var(--bad-soft); border-color:var(--bad); }
+  .mark { margin-left:auto; font-size:13px; font-weight:600; flex:none; }
+  .mark.g { color:var(--good); } .mark.b { color:var(--bad); }
+  input[type=text] { font:inherit; padding:9px 12px; width:100%; max-width:320px;
+    border:1px solid var(--line); border-radius:7px; background:var(--bg); color:var(--ink); }
+  .why { margin-top:14px; padding:12px 14px; border-left:3px solid var(--accent);
+    background:var(--accent-soft); border-radius:0 7px 7px 0; font-size:14px; }
+  .why b { display:block; margin-bottom:3px; }
+  .wrongbox { margin-top:12px; padding:12px 14px; border-left:3px solid var(--bad);
+    background:var(--bad-soft); border-radius:0 7px 7px 0; font-size:14px; }
+  .wrongbox .l, .readnext .l { font-size:11px; text-transform:uppercase; letter-spacing:.07em; font-weight:700; margin-bottom:5px; }
+  .wrongbox .l { color:var(--bad); } .readnext .l { color:var(--good); }
+  .wrongbox p { margin:0 0 9px; } .wrongbox p:last-child { margin:0; }
+  .readnext { margin-top:12px; padding:11px 14px; background:var(--good-soft);
+    border-left:3px solid var(--good); border-radius:0 7px 7px 0; font-size:14px; }
+  .readnext a { color:var(--good); text-decoration:underline; text-underline-offset:2px; }
+  .sched { margin-top:12px; font-size:13px; color:var(--muted); }
+  .sched b { color:var(--ink); }
+  .note { font-size:13px; color:var(--muted); margin-top:10px; }
+  .katex { font-size:1.02em; }
+  @media (max-width:620px){ body{padding:0 13px 70px;} header{padding:20px 0 0;} h1{font-size:21px;}
+    .hero{padding:17px 16px;} .hero .big{font-size:31px;} .panel,.q{padding:15px 15px;} }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Spaced Review</h1>
+  <p class="sub" id="crumbs"></p>
+</header>
+
+<div class="hero">
+  <div class="big" id="dueBig">—</div>
+  <div class="lbl" id="dueLbl">cards scheduled for today</div>
+  <div class="why" id="whyBox"></div>
+  <div class="row">
+    <button class="act primary" id="start">Start review</button>
+    <button class="act" id="cram" hidden>Cram the weakest 10</button>
+    <button class="act" id="settings">Exam dates</button>
+  </div>
+</div>
+
+<div id="session" hidden></div>
+
+<div class="panel" id="setup" hidden>
+  <h3 style="margin-top:0">Exam and quiz dates</h3>
+  <p class="note" style="margin-top:0">Set a date and the scheduler stops planning reviews past it, compresses intervals as it approaches, and front-loads anything you have not seen. Leave blank for ordinary spacing.</p>
+  <table id="examTbl"></table>
+  <h3>Daily capacity</h3>
+  <div><input type="range" id="cap" min="5" max="60" step="5"> <span class="note">at most <b id="capV"></b> cards a day</span></div>
+  <div class="row">
+    <button class="act" id="closeSetup">Done</button>
+    <button class="act" id="reset">Reset all progress</button>
+  </div>
+</div>
+
+<div class="panel">
+  <h3 style="margin-top:0">Next 14 days</h3>
+  <div class="fc" id="fc"></div>
+  <div class="fclab" id="fclab"></div>
+  <p class="note" id="fcNote"></p>
+</div>
+
+<div class="panel">
+  <h3 style="margin-top:0">Progress</h3>
+  <table id="prog"></table>
+</div>
+
+<p class="sub" id="foot"></p>
+</div>
+
+<script src="banks.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script>
+window.KX = function (root) {
+  if (!window.renderMathInElement) return;
+  try { renderMathInElement(root || document.body, {
+    delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}],
+    throwOnError:false, ignoredTags:["script","noscript","style","textarea","pre","option"] }); } catch(e){}
+};
+</script>
+<script>
+const BANKS = window.QUIZ_BANKS || [];
+const APP = (BANKS[0] && /Mathematical|Interpretations/.test(BANKS[0].name)) ? "ruu" : "aml";
+const KEY = "review:" + APP + ":v1";
+const HOME = APP === "ruu" ? "../" : "../quiz/";
+
+document.getElementById("crumbs").innerHTML = APP === "ruu"
+  ? 'EN.605.745 &middot; <a href="../">Quiz</a> &middot; <a href="../reference/">Definitions</a> &middot; <a href="../workbench/">Workbench</a> &middot; <a href="../interpretations/">Interpretations</a>'
+  : 'EN.705.742 &middot; <a href="../quiz/">Quiz</a> &middot; <a href="../playground/">Optimization</a> &middot; <a href="../features/">Feature space</a>';
+
+/* ---------- storage ---------- */
+const today = () => { const d=new Date(); d.setHours(0,0,0,0); return d; };
+const iso = d => d.toISOString().slice(0,10);
+const parse = s => { const d=new Date(s+"T00:00:00"); d.setHours(0,0,0,0); return d; };
+const dayDiff = (a,b) => Math.round((a-b)/86400000);
+function hash(s){ let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))|0; return (h>>>0).toString(36); }
+
+let S = { v:1, cards:{}, exams:{}, cap:20 };
+try { const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S, JSON.parse(raw)); } catch(e){}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+
+/* ---------- card list ---------- */
+const CARDS = [];
+BANKS.forEach((b,bi) => b.questions.forEach(q => {
+  CARDS.push({ id: hash(b.name + "|" + q.q), bi, bank: b.name, q });
+}));
+const st = c => S.cards[c.id] || { box:-1, due:null, reps:0, lapses:0 };
+
+/* ---------- scheduling ---------- */
+const INT = [1, 3, 7, 14, 30, 60];
+function examFor(bi){ const e=S.exams[bi]; return e ? parse(e) : null; }
+
+function nextDue(c, correct) {
+  const cur = st(c);
+  let box = cur.box < 0 ? (correct ? 1 : 0) : (correct ? Math.min(cur.box+1, INT.length-1) : Math.max(0, cur.box-2));
+  let gap = INT[box];
+  const T = today(), ex = examFor(c.bi);
+  if (ex) {
+    const left = dayDiff(ex, T);
+    if (left <= 0) { /* exam passed: ordinary spacing */ }
+    else {
+      // compress so the whole stack still gets seen before the exam
+      if (left <= 21) gap = Math.max(1, Math.min(gap, Math.ceil(left/3)));
+      // never schedule past the exam
+      if (gap >= left) gap = Math.max(1, left - 1);
+    }
+  }
+  const d = new Date(T); d.setDate(d.getDate()+gap);
+  return { box, due: iso(d), gap };
+}
+
+function grade(c, correct) {
+  const cur = st(c), n = nextDue(c, correct);
+  S.cards[c.id] = { box:n.box, due:n.due, reps:(cur.reps||0)+1,
+                    lapses:(cur.lapses||0)+(correct?0:1), last: iso(today()) };
+  save();
+  return n;
+}
+
+/* which cards are due, and why */
+function queue() {
+  const T = today();
+  const due = [], fresh = [];
+  CARDS.forEach(c => {
+    const s = st(c);
+    if (s.box < 0) { fresh.push(c); return; }
+    if (parse(s.due) <= T) due.push(c);
+  });
+  due.sort((a,b) => dayDiff(T, parse(st(a).due)) - dayDiff(T, parse(st(b).due)) || st(b).lapses - st(a).lapses);
+  // exam front-loading: pull unseen cards from banks with a near exam first
+  fresh.sort((a,b) => {
+    const ea = examFor(a.bi), eb = examFor(b.bi);
+    const da = ea ? dayDiff(ea, T) : 9999, db = eb ? dayDiff(eb, T) : 9999;
+    return da - db;
+  });
+  let need = Math.max(0, S.cap - due.length);
+  // if an exam is close, take enough new cards that the bank finishes in time
+  const out = due.concat(fresh.slice(0, need));
+  return { out: out.slice(0, S.cap), due:due.length, fresh:fresh.length };
+}
+
+function pressure() {
+  // per bank: unseen cards vs days left before its exam
+  const T = today(); const rows = [];
+  BANKS.forEach((b,bi) => {
+    const cs = CARDS.filter(c => c.bi===bi);
+    const unseen = cs.filter(c => st(c).box < 0).length;
+    const weak = cs.filter(c => st(c).box >= 0 && st(c).box <= 1).length;
+    const ex = examFor(bi);
+    const left = ex ? dayDiff(ex, T) : null;
+    rows.push({ bi, name:b.name, total:cs.length, unseen, weak, left,
+      mastered: cs.filter(c => st(c).box >= 3).length });
+  });
+  return rows;
+}
+
+/* ---------- dashboard ---------- */
+function paint() {
+  const T = today(), Q = queue(), rows = pressure();
+  document.getElementById("dueBig").textContent = Q.out.length;
+  document.getElementById("dueLbl").textContent = Q.out.length === 1 ? "card scheduled for today" : "cards scheduled for today";
+  document.getElementById("start").disabled = Q.out.length === 0;
+
+  const soon = rows.filter(r => r.left !== null && r.left >= 0).sort((a,b)=>a.left-b.left)[0];
+  const box = document.getElementById("whyBox");
+  box.classList.toggle("urgent", !!(soon && soon.left <= 7));
+  if (soon) {
+    const remaining = soon.unseen + soon.weak;
+    const perDay = soon.left > 0 ? Math.ceil(remaining / soon.left) : remaining;
+    box.innerHTML = soon.left === 0
+      ? `<b>${soon.name.replace(/ - .*/,"")} is today.</b> Everything still scheduled has been pulled forward.`
+      : `<b>${soon.left} day${soon.left===1?"":"s"} to ${soon.name.replace(/ - .*/,"")}.</b> ` +
+        `${remaining} card${remaining===1?"":"s"} still unseen or shaky, so about <b>${perDay} a day</b> to cover them. ` +
+        (soon.left <= 21 ? "Intervals are compressed and nothing will be scheduled past the exam." : "Ordinary spacing for now; compression starts 21 days out.");
+  } else {
+    box.innerHTML = Q.due
+      ? `${Q.due} due for review, ${Q.fresh} never seen. Set an exam date and the scheduler will work backwards from it.`
+      : `Nothing due. ${Q.fresh} card${Q.fresh===1?"":"s"} never seen — start a session to begin.`;
+  }
+  document.getElementById("cram").hidden = !(soon && soon.left !== null && soon.left <= 3);
+
+  // forecast
+  const counts = new Array(14).fill(0);
+  CARDS.forEach(c => { const s=st(c); if(s.box<0) return;
+    const d = dayDiff(parse(s.due), T); if (d>=0 && d<14) counts[d]++; else if (d<0) counts[0]++; });
+  const mx = Math.max(1, ...counts);
+  const fc = document.getElementById("fc"), lab = document.getElementById("fclab");
+  fc.innerHTML = ""; lab.innerHTML = "";
+  const examDays = {};
+  rows.forEach(r => { if (r.left !== null && r.left >= 0 && r.left < 14) examDays[r.left] = r.name; });
+  counts.forEach((n,i) => {
+    const d = document.createElement("div");
+    d.style.height = Math.round((n/mx)*100) + "%";
+    if (i === 0) d.className = "today";
+    if (examDays[i] !== undefined) d.className = "exam";
+    d.title = (n + " due") + (examDays[i] ? " · " + examDays[i] : "");
+    fc.appendChild(d);
+    const sp = document.createElement("span");
+    const dt = new Date(T); dt.setDate(dt.getDate()+i);
+    sp.textContent = i===0 ? "today" : (i%2===0 ? dt.getDate() : "");
+    lab.appendChild(sp);
+  });
+  document.getElementById("fcNote").innerHTML = Object.keys(examDays).length
+    ? "Red bars are exam days. Nothing is scheduled on or after one."
+    : "Orange is today. Add an exam date to see it marked here.";
+
+  // progress table
+  const t = document.getElementById("prog");
+  t.innerHTML = "<tr><th>Bank</th><th>Seen</th><th>Solid</th><th></th><th>Exam</th></tr>" +
+    rows.map(r => {
+      const seen = r.total - r.unseen;
+      const pct = Math.round((r.mastered / r.total) * 100);
+      return `<tr><td>${r.name.replace(/ - .*/,"")}</td>
+        <td class="num">${seen}/${r.total}</td>
+        <td class="num">${r.mastered}</td>
+        <td style="width:34%"><div class="mini"><div style="width:${pct}%"></div></div></td>
+        <td class="num">${r.left === null ? "&mdash;" : (r.left < 0 ? "past" : r.left + "d")}</td></tr>`;
+    }).join("");
+
+  document.getElementById("foot").innerHTML =
+    `Progress is stored in this browser only (localStorage). ${CARDS.length} cards total.`;
+}
+
+/* ---------- setup ---------- */
+function paintSetup() {
+  document.getElementById("examTbl").innerHTML =
+    "<tr><th>Bank</th><th>Date</th></tr>" + BANKS.map((b,bi) =>
+      `<tr><td>${b.name.replace(/ - .*/,"")}</td>
+       <td><input type="date" data-bi="${bi}" value="${S.exams[bi]||""}"></td></tr>`).join("");
+  document.querySelectorAll("#examTbl input").forEach(inp => inp.onchange = () => {
+    const bi = inp.dataset.bi;
+    if (inp.value) S.exams[bi] = inp.value; else delete S.exams[bi];
+    save(); paint();
+  });
+  document.getElementById("cap").value = S.cap;
+  document.getElementById("capV").textContent = S.cap;
+}
+document.getElementById("cap").oninput = e => {
+  S.cap = +e.target.value; document.getElementById("capV").textContent = S.cap; save(); paint();
+};
+document.getElementById("settings").onclick = () => {
+  const el = document.getElementById("setup"); el.hidden = !el.hidden; if (!el.hidden) paintSetup();
+};
+document.getElementById("closeSetup").onclick = () => { document.getElementById("setup").hidden = true; };
+document.getElementById("reset").onclick = () => {
+  if (!confirm("Erase all review progress for this course? Exam dates are kept.")) return;
+  S.cards = {}; save(); paint();
+};
+
+/* ---------- session ---------- */
+const TAG = { one:"one answer", many:"select all", tf:"true / false", fill:"fill in" };
+const optText = (q,i) => q.type==="tf" ? ["True","False"][i] : q.options[i];
+const norm = s => s.toLowerCase().trim().replace(/\s+/g," ").replace(/[.?!]$/,"");
+let SESS = [], pos = 0, right = 0;
+
+function startSession(list) {
+  SESS = list; pos = 0; right = 0;
+  document.getElementById("session").hidden = false;
+  document.getElementById("start").disabled = true;
+  showCard();
+  document.getElementById("session").scrollIntoView({behavior:"smooth", block:"start"});
+}
+function showCard() {
+  const host = document.getElementById("session");
+  if (pos >= SESS.length) {
+    host.innerHTML = `<div class="q"><div class="qhead"><span class="qnum">Session complete</span></div>
+      <p class="qtext">${right} of ${SESS.length} correct. Cards you missed come back sooner.</p>
+      <button class="act primary" id="again">Back to dashboard</button></div>`;
+    document.getElementById("again").onclick = () => {
+      host.hidden = true; host.innerHTML = ""; paint();
+      window.scrollTo({top:0,behavior:"smooth"});
+    };
+    paint(); return;
+  }
+  const c = SESS[pos], q = c.q, s = st(c);
+  const seen = s.box >= 0;
+  host.innerHTML = `<div class="q" id="card">
+    <div class="qhead"><span class="qnum">${pos+1} of ${SESS.length}</span>
+      <span class="bankTag">${c.bank.replace(/ - .*/,"")}</span>
+      <span class="tag">${TAG[q.type]}</span></div>
+    <p class="qtext">${q.q}</p>
+    <div id="opts"></div>
+    <button class="act primary" id="chk" style="margin-top:12px">Check</button>
+    <div class="sched">${seen ? `box ${s.box} &middot; last seen ${s.last||"—"} &middot; ${s.lapses} lapse${s.lapses===1?"":"s"}` : "first time seeing this one"}</div>
+  </div>`;
+  const opts = document.getElementById("opts");
+  if (q.type === "fill") {
+    opts.innerHTML = `<input type="text" id="fillin" placeholder="your answer">`;
+  } else {
+    const list = q.type==="tf" ? ["True","False"] : q.options;
+    opts.innerHTML = list.map((o,i) =>
+      `<label class="opt" data-oi="${i}"><input type="${q.type==="many"?"checkbox":"radio"}" name="opt" value="${i}"><span>${o}</span></label>`).join("");
+  }
+  document.getElementById("chk").onclick = () => check(c);
+  KX(host);
+}
+function check(c) {
+  const q = c.q, card = document.getElementById("card");
+  let ok=false, picked=[];
+  if (q.type === "fill") {
+    const inp = document.getElementById("fillin");
+    const g = norm(inp.value);
+    ok = q.answer.some(a => { const n=norm(a); return g===n || g===n+" theory" || g===n+" space" || g===n+" parameter"; });
+    inp.disabled = true; inp.style.borderColor = ok ? "var(--good)" : "var(--bad)";
+    if (!ok) { const p=document.createElement("p"); p.className="sched";
+      p.innerHTML = `Correct answer: <b>${q.answer[0]}</b>`; inp.after(p); }
+  } else {
+    picked = [...card.querySelectorAll("input:checked")].map(i=>+i.value);
+    ok = picked.length===q.answer.length && picked.every(p=>q.answer.includes(p));
+    card.querySelectorAll("label.opt").forEach(lab => {
+      const oi=+lab.dataset.oi; lab.querySelector("input").disabled=true;
+      const isAns=q.answer.includes(oi), chose=picked.includes(oi);
+      if (isAns) { lab.classList.add("correct");
+        const m=document.createElement("span"); m.className="mark g";
+        m.textContent = chose ? "correct" : "correct answer"; lab.appendChild(m); }
+      else if (chose) { lab.classList.add("wrong");
+        const m=document.createElement("span"); m.className="mark b"; m.textContent="your answer"; lab.appendChild(m); }
+    });
+  }
+  document.getElementById("chk").remove();
+  if (ok) right++;
+
+  const why=document.createElement("div"); why.className="why";
+  why.innerHTML = `<b>${ok?"Correct":"Not quite"}</b>${q.why}`;
+  card.appendChild(why);
+
+  if (!ok && q.type !== "fill") {
+    const chosen = picked.filter(i=>!q.answer.includes(i));
+    const missed = q.answer.filter(i=>!picked.includes(i));
+    let html="";
+    chosen.forEach(i => { const cu=q.wrong && q.wrong[i];
+      html += `<p><b>&ldquo;${optText(q,i)}&rdquo;</b> &mdash; ${cu || "not the answer here; the explanation above gives the one that is."}</p>`; });
+    if (missed.length) html += `<p><b>You missed:</b> ${missed.map(i=>`&ldquo;${optText(q,i)}&rdquo;`).join(", ")}.</p>`;
+    if (html) { const wb=document.createElement("div"); wb.className="wrongbox";
+      wb.innerHTML=`<div class="l">Why your choice does not work</div>${html}`; card.appendChild(wb); }
+  }
+  const rn=document.createElement("div"); rn.className="readnext";
+  rn.innerHTML=`<div class="l">Read next</div>${q.src}`;
+  card.appendChild(rn);
+
+  const n = grade(c, ok);
+  const sch=document.createElement("div"); sch.className="sched";
+  sch.innerHTML = `Scheduled again in <b>${n.gap} day${n.gap===1?"":"s"}</b>, on <b>${n.due}</b>` +
+    (examFor(c.bi) ? " &middot; capped by your exam date" : "");
+  card.appendChild(sch);
+
+  const nx=document.createElement("button"); nx.className="act primary";
+  nx.style.marginTop="14px"; nx.textContent = pos+1 >= SESS.length ? "Finish" : "Next card";
+  nx.onclick = () => { pos++; showCard(); window.scrollTo({top:0,behavior:"smooth"}); };
+  card.appendChild(nx);
+  KX(card);
+}
+
+document.getElementById("start").onclick = () => startSession(queue().out);
+document.getElementById("cram").onclick = () => {
+  const T=today();
+  const weak = CARDS.filter(c => { const e=examFor(c.bi); return e && dayDiff(e,T)>=0; })
+    .sort((a,b) => (st(a).box<0?-1:st(a).box) - (st(b).box<0?-1:st(b).box) || st(b).lapses - st(a).lapses)
+    .slice(0,10);
+  startSession(weak);
+};
+
+paint();
+window.addEventListener("load", () => KX());
+</script>
+</body>
+</html>
