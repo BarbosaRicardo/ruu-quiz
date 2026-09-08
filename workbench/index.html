@@ -2,10 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#2f5d8a" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#17181a" media="(prefers-color-scheme: dark)">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" crossorigin="anonymous">
 <title>Probability Workbench</title>
 <style>
   :root {
@@ -80,17 +78,9 @@
   .ans b { font-size:19px; }
   .src { color:var(--muted); font-size:13px; margin-top:14px; }
 
-  @media (max-width: 620px) {
-    body { padding:0 13px 70px; }
-    header { padding:22px 0 0; }
-    h1 { font-size:21px; }
-    .card, .q, .prob, .panel, .score { padding:16px 15px; }
-    .tab { padding:9px 12px; font-size:14px; }
-    .chip { padding:8px 13px; }
-    .eq, .math { font-size:14px; }
-    .sl { min-width:100%; }
-    canvas { height:auto; }
-  }
+  .katex { font-size:1.02em; }
+  .eq .katex, .fx .katex { font-size:1.06em; }
+  .katex-display { margin:.4em 0; }
   [hidden] { display:none !important; }
 </style>
 </head>
@@ -100,7 +90,7 @@
 <header>
   <h1>Probability Workbench</h1>
   <p class="sub">EN.605.745 Reasoning Under Uncertainty &middot; Module 1 &middot; equations, pictures, worked problems</p>
-  <p class="sub" style="margin:-10px 0 16px"><a href="../reference/" style="color:var(--accent)">Definitions</a> &middot; <a href="../workbench/" style="color:var(--accent)">Workbench</a> &middot; <a href="../interpretations/" style="color:var(--accent)">Interpretations</a> &middot; <a href="../" style="color:var(--accent)">Quiz</a></p>
+<p class="sub" style="margin:-10px 0 16px"><a href="../reference/" style="color:var(--accent)">Definitions</a> &middot; <a href="../workbench/" style="color:var(--accent)">Workbench</a> &middot; <a href="../interpretations/" style="color:var(--accent)">Interpretations</a> &middot; <a href="../" style="color:var(--accent)">Quiz</a></p>
   <div class="tabs" role="tablist">
     <button class="tab" data-p="0" aria-selected="true">The equations</button>
     <button class="tab" data-p="1" aria-selected="false">Bayes machine</button>
@@ -183,57 +173,57 @@ document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
 
 /* ---------------- equations ---------------- */
 const EQ = [
-{ nm:"Axiom 1 · non-negativity", eq:"P(&alpha;) &ge; 0",
+{ nm:"Axiom 1 · non-negativity", eq:"\\(P(\\alpha) \\ge 0\\)",
   plain:"No event can have negative probability. The floor is zero: total impossibility.",
   anal:"<p>You cannot believe something <i>less than not at all</i>. There is no anti-belief. If a bookmaker offered you odds implying &minus;20% chance of rain, you would not be very sure it won't rain; you would be looking at a broken bookmaker.</p>",
   got:"Nothing subtle here, but it is an axiom rather than a theorem. It is <b>assumed</b>, not proved." },
 
-{ nm:"Axiom 2 · normalization", eq:"P(&Omega;) = 1",
+{ nm:"Axiom 2 · normalization", eq:"\\(P(\\Omega) = 1\\)",
   plain:"Something in the sample space definitely happens. The whole menu has probability 1.",
   anal:"<p>&Omega; is the complete menu of everything that could occur. This axiom says the universe is not allowed to abstain. It will order something.</p><p>This is also what makes probability comparable across problems: everything is measured as a slice of one whole pie, so a 0.3 in a dice problem means the same size of belief as a 0.3 in a weather forecast.</p>",
   got:"If your probabilities don't sum to 1, you have not found a strange new distribution. You have <b>made an arithmetic error or forgotten an outcome</b>." },
 
-{ nm:"Axiom 3 · additivity", eq:"if &alpha; &cap; &beta; = &empty;, then P(&alpha; &cup; &beta;) = P(&alpha;) + P(&beta;)",
+{ nm:"Axiom 3 · additivity", eq:"\\(\\alpha \\cap \\beta = \\emptyset \;\\Rightarrow\; P(\\alpha \\cup \\beta) = P(\\alpha) + P(\\beta)\\)",
   plain:"If two events cannot both happen, the chance of either one is just the sum.",
   anal:"<p>Two pieces of pie that do not overlap: to know how much pie you have, add them. The whole content of the axiom is the word <b>disjoint</b>. Overlap is what breaks addition, because the overlap gets counted twice.</p><p>That is where the correction P(&alpha; &cup; &beta;) = P(&alpha;) + P(&beta;) &minus; P(&alpha; &cap; &beta;) comes from. It is not a new law; it is this axiom plus a refund for double-billing.</p>",
   got:"<b>Disjoint is not the same as independent.</b> They are almost opposites. Disjoint events are maximally dependent: if one happened, the other definitely did not." },
 
-{ nm:"Definition 1.5 · principle of indifference", eq:"n equally likely simple events &rArr; P(each) = 1/n",
+{ nm:"Definition 1.5 · principle of indifference", eq:"\\(n\\text{ equally likely simple events} \;\\Rightarrow\; P(\\text{each}) = \\tfrac{1}{n}\\)",
   plain:"With no reason to favour one outcome over another, split the belief evenly.",
   anal:"<p>A deck of 52 cards, and no reason to think the top card is the king of hearts rather than the seven of clubs. So 1/52 each.</p><p>This sounds harmless and is quietly dangerous. Module 2's North Atlantic ship example shows why: spreading belief evenly over <i>area</i> forces an <b>uneven</b> spread over <i>latitude</i>. Indifference is not a neutral act. It is a choice about which dimension you were indifferent along.</p>",
   got:"Uniform is a <b>real assumption</b>, not the absence of one." },
 
-{ nm:"Definition 1.9 · conditional probability", eq:"P(&beta;|&alpha;) = P(&alpha; &cap; &beta;) / P(&alpha;)",
+{ nm:"Definition 1.9 · conditional probability", eq:"\\(P(\\beta \\mid \\alpha) = \\dfrac{P(\\alpha \\cap \\beta)}{P(\\alpha)}\\)",
   plain:"Given that &alpha; happened, how likely is &beta;? Look only at the &alpha; worlds, and ask what fraction of them also have &beta;.",
   anal:"<p>A photographer crops a picture. The subject does not grow, but it now fills more of the frame. Conditioning is cropping: you throw away every world where &alpha; did not happen, and the surviving worlds have to be re-scaled so they add to 1 again. <b>The denominator is the re-scaling.</b> That is the only job it has.</p><p>This is why P(&beta;|&alpha;) can be enormous while P(&alpha; &cap; &beta;) is minuscule. Living to 100 given you are 99 is likely; being a 99-year-old who reaches 100 is rare. Same two facts, different frames.</p>",
   got:"The condition is on the <b>right</b> of the bar, and the bar is not division. P(A|B) and P(B|A) are different numbers, and swapping them is the single most common error in the course." },
 
-{ nm:"Definition 1.10 · chain rule", eq:"P(&alpha; &cap; &beta;) = P(&alpha;) &times; P(&beta;|&alpha;)",
+{ nm:"Definition 1.10 · chain rule", eq:"\\(P(\\alpha \\cap \\beta) = P(\\alpha)\\,P(\\beta \\mid \\alpha)\\)",
   plain:"For both to happen: the chance the first happens, times the chance the second happens given the first did.",
   anal:"<p>Dominoes in a row. To knock down the last one you need each to fall <i>given</i> the one before it fell. Multiply along the line.</p><p>The general form P(&alpha;<sub>k</sub> &cap; &hellip; &cap; &alpha;<sub>1</sub>) = &prod; P(&alpha;<sub>n</sub> | everything before it) is the same idea with a longer line. Note that each factor conditions on <b>all</b> the previous events, not just the one immediately before.</p>",
   got:"Rearranged, this is just Definition 1.9 with the denominator moved. Your notes call it the chain rule; most textbooks call the two-event version the <b>product rule</b>. Same equation, and a quiz has already burned you on that." },
 
-{ nm:"Definition 1.7 · law of total probability", eq:"P(A) = &sum;<sub>n</sub> P(A|B<sub>n</sub>) P(B<sub>n</sub>)",
+{ nm:"Definition 1.7 · law of total probability", eq:"\\(P(A) = \\sum_{n} P(A \\mid B_n)\\,P(B_n)\\)",
   plain:"Split the world into non-overlapping cases, ask the question inside each, then weight each answer by how likely that case was.",
   anal:"<p>You want to know how likely a randomly chosen JHU student owns a car. Rather than guess directly, split into rooms: undergrads, grads, faculty. Ask the rate in each room, then weight by how big each room is. A 90% car-ownership rate in a room holding four people barely moves the total.</p><p>This is almost always what people forget when computing the denominator of Bayes' rule. P(evidence) is rarely handed to you; you usually have to build it this way.</p>",
   got:"The cases must be <b>disjoint and cover everything</b>. Miss a room and your total is wrong, usually in a way that is hard to spot." },
 
-{ nm:"Definition 1.11 · Bayes' rule", eq:"P(&alpha;|&beta;) = P(&beta;|&alpha;) P(&alpha;) / P(&beta;)",
+{ nm:"Definition 1.11 · Bayes' rule", eq:"\\(P(\\alpha \\mid \\beta) = \\dfrac{P(\\beta \\mid \\alpha)\\,P(\\alpha)}{P(\\beta)}\\)",
   plain:"Flip the conditional. You know how likely the evidence is given the cause; you want how likely the cause is given the evidence.",
   anal:"<p>Running the projector backwards. Forward is easy: given measles, a rash is likely. Backward is what you actually need in the room: given a rash, is it measles? The world hands you forward knowledge and asks backward questions.</p><p>The prior P(&alpha;) is the term everyone drops, and it is the one that decides the answer. Measles produces a rash reliably, but if there is essentially no measles in your city, a rash is still almost certainly not measles. <b>Evidence updates a prior; it does not replace it.</b></p>",
   got:"P(&beta;|&alpha;) is <b>not</b> P(&alpha;|&beta;). The whole rule exists because those two differ. If they were the same you would not need Bayes." },
 
-{ nm:"Definition 1.14 · independence", eq:"P(E|F) = P(E), or P(F) = 0",
+{ nm:"Definition 1.14 · independence", eq:"\\(P(E \\mid F) = P(E)\\quad\\text{or}\\quad P(F) = 0\\)",
   plain:"Learning F tells you nothing about E. Your belief does not move.",
   anal:"<p>The needle does not twitch. You learn the fact, you check your belief, it is where you left it.</p><p>Equivalently P(E &cap; F) = P(E)P(F), and it is symmetric: if F says nothing about E, then E says nothing about F. Note the escape clause, <b>or P(F) = 0</b>. If F is impossible, P(E|F) is a division by zero, so the definition declares independence to hold vacuously rather than being undefined. That clause has already appeared on a quiz.</p>",
   got:"Independence is a claim about <b>belief</b>, not about causation or physical connection. And it is not the same as being mutually exclusive, which is maximal dependence." },
 
-{ nm:"Definition 1.16 · conditional independence", eq:"P(E|F &cap; G) = P(E|G), or P(F &cap; G) = 0",
+{ nm:"Definition 1.16 · conditional independence", eq:"\\(P(E \\mid F \\cap G) = P(E \\mid G)\\quad\\text{or}\\quad P(F \\cap G) = 0\\)",
   plain:"Once you know G, learning F adds nothing about E. They only looked connected because of G.",
   anal:"<p>Two marionettes on a stage appear to dance together. Left puppet's arm rises, right puppet's arm rises, every time. Watching them, you would swear one causes the other.</p><p>Then you look up and see <b>one puppeteer holding both sets of strings</b>. Now, if I tell you the puppeteer raised their left hand, does watching the left puppet tell you anything more about the right one? No. All the information was in the hand. Conditioned on the puppeteer, the puppets are independent.</p><p>G is the puppeteer. This is the entire idea behind naive Bayes, where the class label is the hand and the features are the puppets. It is also what your ice-cream-and-drownings example is really about: the sun is holding both strings.</p>",
   got:"It runs <b>both ways and neither implies the other</b>. Your notes' card example has E and F dependent but conditionally independent given G. It can also go the other direction, where conditioning creates a dependence that wasn't there." },
 
-{ nm:"§1.5.2 · combining independent evidence", eq:"P(A|B,C) = P(A) &middot; P(B|A)/P(B) &middot; P(C|A)/P(C)",
+{ nm:"§1.5.2 · combining independent evidence", eq:"\\(P(A \\mid B,C) = P(A)\\cdot\\dfrac{P(B \\mid A)}{P(B)}\\cdot\\dfrac{P(C \\mid A)}{P(C)}\\)",
   plain:"With two pieces of evidence assumed conditionally independent given A, Bayes collapses into a product of separate update factors.",
   anal:"<p>Each piece of evidence becomes a multiplier on your belief. Evidence that is twice as likely when A is true doubles your odds. Stack them up.</p><p>The catch is the assumption, and it is a big one. If B and C are secretly telling you the <b>same thing</b>, you are multiplying twice for one fact and your confidence comes out far too sharp. That is exactly the Norman-and-Martin trap: two commuters on opposite sides of the city, different transport, and still not independent once a train strike hits.</p>",
   got:"Assuming conditional independence when it is false makes you <b>overconfident</b>, not just slightly wrong. It is the most common way a probabilistic model lies to you." }
@@ -436,8 +426,23 @@ document.getElementById("allOpen").onclick = () => {
 };
 document.getElementById("allShut").onclick = () => location.reload();
 
-bmDraw();
+bmDraw(); KX();
 window.addEventListener("resize", () => { if (!document.getElementById("p1").hidden) bmDraw(); });
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script>
+window.KX = function (root) {
+  if (!window.renderMathInElement) return;
+  try {
+    renderMathInElement(root || document.body, {
+      delimiters: [{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}],
+      throwOnError: false,
+      ignoredTags: ["script","noscript","style","textarea","pre","option"]
+    });
+  } catch (e) {}
+};
+window.addEventListener("load", function(){ KX(); });
 </script>
 </body>
 </html>

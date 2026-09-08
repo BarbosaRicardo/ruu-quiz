@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-title" content="RUU Ref">
 <meta name="theme-color" content="#2f5d8a" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#17181a" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" crossorigin="anonymous">
 <title>Module Reference</title>
 <style>
   :root {
@@ -101,6 +102,10 @@
     .day { padding:15px 15px; }
   }
   .eq, .math { -webkit-overflow-scrolling:touch; }
+
+  .katex { font-size:1.02em; }
+  .eq .katex, .fx .katex { font-size:1.06em; }
+  .katex-display { margin:.4em 0; }
   [hidden] { display:none !important; }
 </style>
 </head>
@@ -333,13 +338,13 @@ const DEFS = [
   got:"Uniform is a <b>choice</b>, not neutrality. Refusing to state a prior does not remove it; it hides it." },
 
 { mod:1, src:"Lecture", ch:1, grp:"Module 1 lecture notes", id:"Definition 1.6", pg:"1-5", name:"Probability distribution (the axioms)",
-  eq:"1. P(&alpha;) &ge; 0 &nbsp; 2. P(&Omega;) = 1 &nbsp; 3. &alpha; &cap; &beta; = &empty; &rArr; P(&alpha; &cup; &beta;) = P(&alpha;) + P(&beta;)",
+  eq:"\\(\\text{1.}\\ P(\\alpha)\\ge 0 \\quad \\text{2.}\\ P(\\Omega)=1 \\quad \\text{3.}\\ \\alpha\\cap\\beta=\\emptyset \\Rightarrow P(\\alpha\\cup\\beta)=P(\\alpha)+P(\\beta)\\)",
   plain:"The three Kolmogorov axioms, stated exactly as Koller's Definition 2.1 states them.",
   anal:"<p>The notes and the textbook agree word for word here, which is unusual and worth noticing. Your notes then add the history: Kolmogorov wrote these down in 1933.</p><p>(&Omega;, P) together make a probability space.</p>",
   got:"<b>Three</b> axioms. Consequences like P(&empty;) = 0 are theorems, not members of the list." },
 
 { mod:1, src:"Lecture", ch:1, grp:"Module 1 lecture notes", id:"Definition 1.7", pg:"1-6", name:"Law of total probability",
-  eq:"P(A) = &sum;<sub>n</sub> P(A | B<sub>n</sub>) P(B<sub>n</sub>)",
+  eq:"\\(P(A) = \\sum_n P(A \\mid B_n)\\,P(B_n)\\)",
   plain:"Split the world into disjoint cases, answer inside each, weight by how likely each case was.",
   anal:"<p>Rooms in a building. To get the overall rate of something, ask the rate in each room and weight by room size. A 90% rate in a room holding four people barely moves the total.</p><p>This is almost always how you build the denominator of Bayes' rule, and forgetting it is the most common way a Bayes problem falls apart.</p>",
   got:"The cases must be <b>disjoint and cover everything</b>. Miss a case and the total is silently wrong." },
@@ -351,25 +356,25 @@ const DEFS = [
   got:"The joint contains <b>everything</b> &mdash; every marginal and every conditional can be computed from it. It is also almost always too big to have." },
 
 { mod:1, src:"Lecture", ch:1, grp:"Module 1 lecture notes", id:"Definition 1.9", pg:"1-6", name:"Conditional probability",
-  eq:"P(&beta;|&alpha;) = P(&alpha; &cap; &beta;) / P(&alpha;), &nbsp; requires P(&alpha;) &ne; 0",
+  eq:"\\(P(\\beta\\mid\\alpha) = \\dfrac{P(\\alpha\\cap\\beta)}{P(\\alpha)},\\quad P(\\alpha)\\ne 0\\)",
   plain:"Given &alpha; happened, how likely is &beta;.",
   anal:"<p>Cropping a photo. The subject does not grow; the frame shrinks. The denominator rescales the smaller world so it sums to 1 again.</p><p>The notes add a line worth keeping: conditional probability <b>satisfies the axioms</b>, so it is itself a probability distribution. That is why all the machinery keeps working once you condition, and it is left as an exercise for you to prove.</p>",
   got:"P(A|B) and P(B|A) are <b>different numbers</b>. The bar is not division and it is not symmetric." },
 
 { mod:1, src:"Lecture", ch:1, grp:"Module 1 lecture notes", id:"Definition 1.10", pg:"1-7", name:"Chain rule",
-  eq:"P(&alpha; &cap; &beta;) = P(&alpha;) &times; P(&beta;|&alpha;) &nbsp;·&nbsp; P(&alpha;<sub>k</sub> &cap; … &cap; &alpha;<sub>1</sub>) = &prod; P(&alpha;<sub>n</sub> | all previous)",
+  eq:"\\(P(\\alpha\\cap\\beta) = P(\\alpha)P(\\beta\\mid\\alpha) \\qquad P(\\alpha_k\\cap\\cdots\\cap\\alpha_1) = \\prod_n P(\\alpha_n \\mid \\alpha_{n-1}\\cap\\cdots\\cap\\alpha_1)\\)",
   plain:"Definition 1.9 with the denominator moved, plus its k-event generalization.",
   anal:"<p>Dominoes. To get them all down, each must fall <i>given</i> the one before it fell. Multiply along the line.</p><p>In the four-event expansion each factor conditions on <b>everything</b> before it, not just the previous one.</p>",
   got:"Most textbooks call the two-event form the <b>product rule</b>. Your notes call it the chain rule, and a quiz has already charged you for assuming those were different rules." },
 
 { mod:1, src:"Lecture", ch:1, grp:"Module 1 lecture notes", id:"Definition 1.11", pg:"1-7", name:"Bayes' rule",
-  eq:"P(&alpha;|&beta;) = P(&beta;|&alpha;)P(&alpha;) / P(&beta;)",
+  eq:"\\(P(\\alpha\\mid\\beta) = \\dfrac{P(\\beta\\mid\\alpha)P(\\alpha)}{P(\\beta)}\\)",
   plain:"Flip a conditional round: from evidence-given-cause to cause-given-evidence.",
   anal:"<p>Running the projector backwards. The world hands you forward knowledge (measles causes rashes) and asks backward questions (this rash, is it measles?).</p><p>The prior is the term everyone drops and the one that decides the answer. A conditional version P(&alpha;|&beta; &cap; &gamma;) also holds, conditioning everything on background &gamma;.</p>",
   got:"Evidence <b>updates</b> a prior, it does not replace it. A strong likelihood against a tiny prior still leaves a tiny posterior." },
 
 { mod:1, src:"Lecture", ch:1, grp:"Module 1 lecture notes", id:"Definition 1.12", pg:"1-8", name:"Random variable",
-  eq:"X : &Omega; &rarr; &#8477;, assigning each c &isin; &Omega; one and only one number X(c) = x",
+  eq:"\\(X : \\Omega \\to \\mathbb{R},\\quad c \\mapsto X(c) = x\\ \\text{(exactly one value per outcome)}\\)",
   plain:"A function on the sample space, not a variable in the ordinary sense.",
   anal:"<p>A scoring rule. In craps, &Omega; is the 36 ordered dice pairs and X(i,j) = i + j maps each pair to its total. The dice are the outcomes; X is the way you choose to summarize them.</p><p>\"Random variable\" is a terrible name. It is not random and it is not a variable. It is a deterministic function; the randomness lives in &Omega;.</p>",
   got:"<b>One and only one</b> number per outcome. A rule assigning two values to one outcome is not a function and not a random variable." },
@@ -381,25 +386,25 @@ const DEFS = [
   got:"For a continuous variable, <b>P(X = x) = 0</b> for every single x. Only intervals carry probability, which is why densities can exceed 1." },
 
 { mod:1, src:"Lecture", ch:1, grp:"Module 1 lecture notes", id:"Definition 1.14", pg:"1-10", name:"Independence",
-  eq:"P &#8871; E &perp; F &nbsp;iff&nbsp; P(E|F) = P(E) &nbsp;or&nbsp; P(F) = 0",
+  eq:"\\(P \\models E \\perp F \\iff P(E\\mid F) = P(E) \;\\text{ or }\; P(F)=0\\)",
   plain:"Learning F does not move your belief about E.",
   anal:"<p>The needle does not twitch. The notes add the useful examples: draws <b>with</b> replacement are independent, and independence is symmetric, so E &perp; F gives F &perp; E for free.</p>",
   got:"The <b>or P(F) = 0</b> clause is not decoration. It has been the correct answer on your quiz." },
 
 { mod:1, src:"Lecture", ch:1, grp:"Module 1 lecture notes", id:"Proposition 1.15", pg:"1-10", name:"Product form of independence",
-  eq:"(E &perp; F) &nbsp;iff&nbsp; P(E &cap; F) = P(E)P(F)",
+  eq:"\\((E \\perp F) \\iff P(E \\cap F) = P(E)P(F)\\)",
   plain:"The multiplicative test, equivalent to Definition 1.14.",
   anal:"<p>Visibly symmetric, and easier to compute with because nothing gets divided.</p>",
   got:"Not the same as <b>mutually exclusive</b>. Disjoint events with nonzero probability are maximally dependent, since one occurring rules the other out." },
 
 { mod:1, src:"Lecture", ch:1, grp:"Module 1 lecture notes", id:"Definition 1.16", pg:"1-10", name:"Conditional independence",
-  eq:"P &#8871; (E &perp; F | G) &nbsp;iff&nbsp; P(E | F &cap; G) = P(E | G) &nbsp;or&nbsp; P(F &cap; G) = 0",
+  eq:"\\(P \\models (E \\perp F \\mid G) \\iff P(E \\mid F\\cap G) = P(E\\mid G) \;\\text{ or }\; P(F\\cap G)=0\\)",
   plain:"Given G, learning F adds nothing about E.",
   anal:"<p>Two marionettes, one puppeteer. They look linked until you spot the hand holding both sets of strings. Told the hand moved, watching one puppet tells you nothing more about the other.</p><p>The notes call this \"more common\" than plain independence, and it is the assumption naive Bayes runs on.</p>",
   got:"Requires <b>three</b> events. With only two on the table it is not an available answer." },
 
 { mod:1, src:"Lecture", ch:1, grp:"Module 1 lecture notes", id:"Proposition 1.17", pg:"1-10", name:"Product form, conditional",
-  eq:"(E &perp; F | G) &nbsp;iff&nbsp; P(E &cap; F | G) = P(E|G) P(F|G)",
+  eq:"\\((E \\perp F \\mid G) \\iff P(E\\cap F \\mid G) = P(E\\mid G)P(F\\mid G)\\)",
   plain:"The conditional multiplicative test.",
   anal:"<p>Example 11 on the same page walks it: E and F are dependent, but P(E|F &cap; G) = P(E|G) = 1/2, so conditioning on G dissolves the link.</p>",
   got:"Left-hand side is <b>P(E &cap; F | G)</b>, not P(E | F &cap; G). A quiz option swapped exactly these two, and it was wrong." },
@@ -436,7 +441,7 @@ const DEFS = [
   got:"Your course gives fuzzy logic <b>its own module</b> later, so this is not a dismissal. Cheeseman's narrower claim is that it is not needed for uncertain inference, which is a different job." },
 
 { mod:2, src:"Lecture", ch:2, grp:"Module 2 lecture notes", id:"Definition 2.6", pg:"2-5", name:"Probability as measure of belief",
-  eq:"P(proposition | evidence) &isin; [0,1], measuring an entity's belief given that evidence",
+  eq:"\\(P(\\text{proposition} \\mid \\text{evidence}) \\in [0,1]\\)",
   plain:"Cheeseman's replacement definition: a probability is a degree of belief relative to evidence.",
   anal:"<p>This is the pivot of the whole module. Swap this in for \"frequency ratio\" and most objections to probability simply stop making sense.</p><p>It is also the definition the notes attribute back to Bayes and Laplace &mdash; the older view, recovered.</p>",
   got:"The phrase <b>given the evidence</b> is not optional. Strip it and Corollary 2.7 collapses." },
@@ -455,140 +460,140 @@ const DEFS = [
 ,
 /* ================= CH 2 · PROBABILITY ================= */
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Definition 2.1", pg:16, name:"Probability distribution",
-  eq:"P(&alpha;) &ge; 0 &nbsp;·&nbsp; P(&Omega;) = 1 &nbsp;·&nbsp; &alpha; &cap; &beta; = &empty; &rArr; P(&alpha; &cup; &beta;) = P(&alpha;) + P(&beta;)",
+  eq:"\\(P(\\alpha) \\ge 0 \\quad P(\\Omega)=1 \\quad \\alpha\\cap\\beta=\\emptyset \\Rightarrow P(\\alpha\\cup\\beta)=P(\\alpha)+P(\\beta)\\)",
   plain:"A probability distribution is a mapping from events to real numbers obeying exactly three conditions: nothing is negative, the whole space is 1, and disjoint events add.",
   anal:"<p>Three rules and a rulebook. Every other fact about probability in this course is a <i>consequence</i>, not an additional rule. Koller says so directly: \"These two conditions imply many other conditions.\"</p><p>Think of it as the constitution. P(&empty;) = 0 and P(&alpha; &cup; &beta;) = P(&alpha;) + P(&beta;) &minus; P(&alpha; &cap; &beta;) are ordinary legislation, derived from it. Exercise 2.1 makes you prove them, which you could not be asked to do if they were axioms.</p>",
   got:"These are the <b>Kolmogorov axioms</b> and there are <b>three</b>, not four. The list of three <i>event space</i> properties sitting immediately above on the same page (contains &empty; and &Omega;, closed under union, closed under complementation) is a different list about S, not about P." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Event spaces", pg:16, name:"What S has to be",
-  eq:"&empty;, &Omega; &isin; S &nbsp;·&nbsp; &alpha;, &beta; &isin; S &rArr; &alpha; &cup; &beta; &isin; S &nbsp;·&nbsp; &alpha; &isin; S &rArr; &Omega; &minus; &alpha; &isin; S",
+  eq:"\\(\\emptyset,\\Omega \\in S \\quad \\alpha,\\beta \\in S \\Rightarrow \\alpha\\cup\\beta \\in S \\quad \\alpha \\in S \\Rightarrow \\Omega\\setminus\\alpha \\in S\\)",
   plain:"Before you can assign probabilities you need a set S of measurable events that is closed under the Boolean operations.",
   anal:"<p>You cannot ask about an event you refuse to name. S is the list of questions you are allowed to ask, and this says the list must be closed: if \"rain\" and \"snow\" are askable, so are \"rain or snow\" and \"not rain.\"</p><p>Closure under union and complement drags intersection and set difference along for free, by De Morgan.</p>",
   got:"This is a constraint on <b>S</b>, the event space. Definition 2.1 is a constraint on <b>P</b>. Confusing the two lists is the single easiest way to answer \"how many axioms\" wrong." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Conditional probability", pg:18, name:"Conditioning",
-  eq:"P(&beta; | &alpha;) = P(&alpha; &cap; &beta;) / P(&alpha;)",
+  eq:"\\(P(\\beta \\mid \\alpha) = \\dfrac{P(\\alpha \\cap \\beta)}{P(\\alpha)}\\)",
   plain:"Restrict attention to the worlds where &alpha; happened, and ask what fraction of those also have &beta;.",
   anal:"<p>Cropping a photograph. The subject does not grow; the frame shrinks around it. The denominator is the rescaling that makes the cropped world sum to 1 again.</p><p>Koller frames dependence in exactly this language when he introduces independence: \"we usually expect P(&alpha; | &beta;) to be different from P(&alpha;). That is, learning that &beta; is true changes our probability over &alpha;.\"</p>",
   got:"<b>P(A|B) &ne; P(B|A).</b> The entire reason Bayes' rule exists is that these two differ, and swapping them is the most expensive habit you can bring to an exam." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Chain rule & Bayes", pg:18, name:"The two rewrites",
-  eq:"P(&alpha; &cap; &beta;) = P(&alpha;) P(&beta; | &alpha;) &nbsp;&nbsp;·&nbsp;&nbsp; P(&alpha; | &beta;) = P(&beta; | &alpha;) P(&alpha;) / P(&beta;)",
+  eq:"\\(P(\\alpha\\cap\\beta) = P(\\alpha)P(\\beta\\mid\\alpha) \\qquad P(\\alpha\\mid\\beta) = \\dfrac{P(\\beta\\mid\\alpha)P(\\alpha)}{P(\\beta)}\\)",
   plain:"Multiply the definition of conditional probability through and you get the chain rule; write it twice and equate, and Bayes falls out.",
   anal:"<p>Neither of these is a new fact. They are the same equation with the furniture moved. Chain rule walks the dominoes forward; Bayes runs the projector backward, turning \"how likely is this evidence given that cause\" into \"how likely is that cause given this evidence.\"</p><p>Koller's line on Bayes is worth memorizing: it \"allows us to compute the conditional probability P(&alpha; | &beta;) from the <i>inverse</i> conditional probability P(&beta; | &alpha;).\"</p>",
   got:"Most textbooks call the two-event form P(&alpha; &cap; &beta;) = P(&alpha;)P(&beta;|&alpha;) the <b>product rule</b>. Your lecture notes call it the chain rule. Same equation, two names, and a quiz has already charged you for the difference." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Definition 2.2", pg:23, name:"Independence of events",
-  eq:"P &#8871; (&alpha; &perp; &beta;) &nbsp;iff&nbsp; P(&alpha; | &beta;) = P(&alpha;) &nbsp;or&nbsp; P(&beta;) = 0",
+  eq:"\\(P \\models (\\alpha \\perp \\beta) \\iff P(\\alpha\\mid\\beta)=P(\\alpha) \;\\text{ or }\; P(\\beta)=0\\)",
   plain:"&alpha; is independent of &beta; when learning &beta; does not move your belief about &alpha; at all.",
   anal:"<p>The needle does not twitch. You learn the fact, you check your belief, and it is exactly where you left it.</p><p>Koller's Example 2.3 gives the clean case: two coin tosses, two separate physical processes, obviously unlinked. He then warns that the same process can also produce independent events, so \"separate machinery\" is a heuristic, not the definition.</p>",
   got:"Note the escape clause <b>or P(&beta;) = 0</b>. When &beta; is impossible the conditional divides by zero, so independence is declared to hold vacuously rather than being undefined. That clause has already been a correct answer on your quiz." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Proposition 2.1", pg:23, name:"Product form of independence",
-  eq:"(&alpha; &perp; &beta;) &nbsp;iff&nbsp; P(&alpha; &cap; &beta;) = P(&alpha;)P(&beta;)",
+  eq:"\\((\\alpha \\perp \\beta) \\iff P(\\alpha\\cap\\beta) = P(\\alpha)P(\\beta)\\)",
   plain:"An equivalent test for independence, stated as a product instead of a conditional.",
   anal:"<p>Useful because it is <b>visibly symmetric</b>. Definition 2.2 looks like it privileges one event over the other; this form makes it obvious that (&alpha; &perp; &beta;) implies (&beta; &perp; &alpha;), which Koller notes immediately after.</p><p>It is also the version to reach for in a calculation, since it avoids dividing by anything.</p>",
   got:"Do not confuse this with <b>disjointness</b>. Disjoint means P(&alpha; &cap; &beta;) = 0, which is the opposite of independent: if one occurred, the other definitely did not." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Definition 2.3", pg:24, name:"Conditional independence of events",
-  eq:"P &#8871; (&alpha; &perp; &beta; | &gamma;) &nbsp;iff&nbsp; P(&alpha; | &beta; &cap; &gamma;) = P(&alpha; | &gamma;) &nbsp;or&nbsp; P(&beta; &cap; &gamma;) = 0",
+  eq:"\\(P \\models (\\alpha \\perp \\beta \\mid \\gamma) \\iff P(\\alpha\\mid\\beta\\cap\\gamma)=P(\\alpha\\mid\\gamma) \;\\text{ or }\; P(\\beta\\cap\\gamma)=0\\)",
   plain:"Once &gamma; is known, learning &beta; adds nothing further about &alpha;.",
   anal:"<p>Two marionettes appear to dance together until you look up and see one puppeteer holding both sets of strings. Tell me the puppeteer's hand moved, and watching one puppet now tells me nothing new about the other. &gamma; is the hand.</p><p>Koller's own example is admissions: both universities decide on GPA alone, so learning that she got into Stanford should not change her MIT chances <i>once you already know her GPA</i>. P(MIT | Stanford, GradeA) = P(MIT | GradeA).</p>",
   got:"It needs <b>three</b> events. With only two on the table, conditional independence is not an available answer &mdash; a distractor your quiz has used." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Proposition 2.2", pg:24, name:"Product form, conditional",
-  eq:"(&alpha; &perp; &beta; | &gamma;) &nbsp;iff&nbsp; P(&alpha; &cap; &beta; | &gamma;) = P(&alpha; | &gamma;) P(&beta; | &gamma;)",
+  eq:"\\((\\alpha \\perp \\beta \\mid \\gamma) \\iff P(\\alpha\\cap\\beta\\mid\\gamma) = P(\\alpha\\mid\\gamma)P(\\beta\\mid\\gamma)\\)",
   plain:"The conditional version of Proposition 2.1: given &gamma;, the joint factorizes into a product.",
   anal:"<p>This is the workhorse. It is the exact identity naive Bayes leans on, and the one that turns an intractable joint into a product of small pieces.</p><p>Read it as: inside the world where &gamma; is known, &alpha; and &beta; behave like independent events.</p>",
   got:"Watch the left-hand side. It is <b>P(&alpha; &cap; &beta; | &gamma;)</b>, the joint conditioned on &gamma; alone &mdash; not P(&alpha; | &beta; &cap; &gamma;). Swapping those two produces a statement that is false in general, and it has appeared as a wrong option on your quiz." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Definition 2.4", pg:24, name:"Conditional independence of random variables",
-  eq:"(X &perp; Y | Z) &nbsp;iff&nbsp; (X = x &perp; Y = y | Z = z) for <b>all</b> x, y, z",
+  eq:"\\((X \\perp Y \\mid Z) \\iff (X{=}x \\perp Y{=}y \\mid Z{=}z)\\ \\text{for all } x,y,z\\)",
   plain:"Lifting conditional independence from single events to whole sets of random variables, by demanding it for every combination of values.",
   anal:"<p>Events are one snapshot; random variables are the whole photo album. Saying \"heads is independent of heads\" is weaker than saying \"the two coins are independent,\" which has to cover every pairing of outcomes at once.</p><p>The words <b>for all values</b> are the entire content of the upgrade.</p>",
   got:"One convenient assignment satisfying the equation proves <b>nothing</b>. A single value combination where it fails kills the whole claim." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Proposition 2.3", pg:24, name:"Product form for variables",
-  eq:"(X &perp; Y | Z) &nbsp;iff&nbsp; P(X, Y | Z) = P(X | Z) P(Y | Z)",
+  eq:"\\((X \\perp Y \\mid Z) \\iff P(X,Y\\mid Z) = P(X\\mid Z)P(Y\\mid Z)\\)",
   plain:"The random-variable version of the factorization.",
   anal:"<p>This is the sentence that makes graphical models possible. Every time a Bayesian network lets you replace one enormous table with a handful of small ones, this identity is doing the work.</p><p>Koller shows the payoff a few pages later: three variables drop from eleven free parameters to seven, and the saving compounds violently as you add variables.</p>",
   got:"Notice the pattern across 2.1, 2.2 and 2.3: <b>every independence definition comes paired with a product-form proposition.</b> Definition tells you what it means, proposition gives you the version you compute with." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Definition 2.5", pg:25, name:"Positive distribution",
-  eq:"P is positive if P(&alpha;) &gt; 0 for every &alpha; &ne; &empty;",
+  eq:"\\(P \\text{ positive} \\iff P(\\alpha) > 0 \\ \\ \\forall\\, \\alpha \\ne \\emptyset\\)",
   plain:"A distribution where nothing possible has probability exactly zero.",
   anal:"<p>No outright vetoes. Every non-empty event gets at least a sliver of belief.</p><p>This sounds like fussy bookkeeping and is not. Zeros break things: they make conditionals undefined and they let independence hold for the vacuous reason rather than the interesting one. Positivity buys you extra properties, notably <b>intersection</b>, which fails in general.</p>",
   got:"Assigning probability 0 is a <b>very strong claim</b>. It means no evidence whatsoever can ever revive that hypothesis, since Bayes multiplies your prior. A zero prior is a permanent, unrecoverable decision." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Definition 2.6", pg:28, name:"Uniform distribution",
-  eq:"X &sim; Unif[a, b] &nbsp;with&nbsp; p(x) = 1/(b &minus; a) on [a, b], else 0",
+  eq:"\\(X \\sim \\mathrm{Unif}[a,b],\\quad p(x) = \\tfrac{1}{b-a} \\text{ on } [a,b],\\ 0 \\text{ otherwise}\\)",
   plain:"Every subinterval of [a, b] gets probability proportional to its length.",
   anal:"<p>A flat table. Drop a marble and it is equally likely to land anywhere along the surface.</p><p>Worth reading beside Module 2's North Atlantic ship. \"Uniform\" always means uniform <i>with respect to some parameterization</i>, and choosing that parameterization is a real assumption. Uniform over area and uniform over latitude are different distributions and disagree about where the ship is.</p>",
   got:"For continuous variables the density p(x) is <b>not</b> a probability and can exceed 1. On [0, 0.5] the density is 2. Only areas under it are probabilities." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Definition 2.7", pg:28, name:"Gaussian distribution",
-  eq:"X &sim; N(&mu;; &sigma;&sup2;), &nbsp; p(x) = (1 / &radic;(2&pi;)&sigma;) e<sup>&minus;(x&minus;&mu;)&sup2;/2&sigma;&sup2;</sup>",
+  eq:"\\(X \\sim \\mathcal{N}(\\mu,\\sigma^2), \\quad p(x) = \\dfrac{1}{\\sqrt{2\\pi}\\,\\sigma}\\, e^{-(x-\\mu)^2 / 2\\sigma^2}\\)",
   plain:"The bell curve, fixed entirely by its mean and variance. Standard Gaussian means mean 0, variance 1.",
   anal:"<p>Two knobs and nothing else: where the hump sits, and how wide it is. That is the whole distribution, which is why it is so heavily used &mdash; and occasionally why it is the wrong choice.</p><p>Proposition 2.7 confirms the parameters are exactly the mean and variance, which is unusual. For most families the parameters are not the moments.</p>",
   got:"The Gaussian has <b>thin tails</b>. Extreme events are astronomically unlikely under it, so if your data has fat tails, a Gaussian will quietly tell you disasters cannot happen." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Definition 2.8", pg:29, name:"Joint density function",
-  eq:"p(x&#8321;,…,x&#8345;) &ge; 0 &nbsp;and&nbsp; &int;&hellip;&int; p = 1",
+  eq:"\\(p(x_1,\\ldots,x_n) \\ge 0 \\quad\\text{and}\\quad \\int\\!\\cdots\\!\\int p \\,dx = 1\\)",
   plain:"The continuous analogue of a joint distribution: non-negative everywhere and integrating to 1 over the whole space.",
   anal:"<p>Structurally identical to the discrete case with sums swapped for integrals. Axiom 1 becomes \"non-negative everywhere,\" axiom 2 becomes \"integrates to 1.\"</p><p>Once you see that, the continuous half of the chapter stops being a new subject and becomes the same subject with different plumbing.</p>",
   got:"Marginalizing here means <b>integrating out</b> the variable you do not care about, exactly as summing out did in the discrete case." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Definition 2.9", pg:31, name:"Conditional density",
-  eq:"p(y | x) = p(x, y) / p(x), &nbsp; undefined when p(x) = 0",
+  eq:"\\(p(y \\mid x) = \\dfrac{p(x,y)}{p(x)},\\quad \\text{undefined if } p(x)=0\\)",
   plain:"Conditional probability for continuous variables, with the same shape as the discrete definition.",
   anal:"<p>Same crop, same rescale. Slice the joint density at x, then normalize the slice so it integrates to 1.</p>",
   got:"You are conditioning on an event of probability <b>zero</b>, since P(X = x) = 0 exactly for a continuous X. It works, but it is a genuinely different construction from discrete conditioning, and that is why the undefined case must be stated." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Definition 2.10", pg:31, name:"Conditional independence, continuous",
-  eq:"(X &perp; Y | Z) &nbsp;iff&nbsp; p(x | z) = p(x | y, z) for all x, y, z with p(z) &gt; 0",
+  eq:"\\((X \\perp Y \\mid Z) \\iff p(x\\mid z) = p(x \\mid y,z)\\ \\ \\forall\\,x,y,z \\text{ with } p(z)>0\\)",
   plain:"Conditional independence carried over to densities.",
   anal:"<p>Same puppeteer, drawn in continuous ink. Knowing z, the density over x does not care what y did.</p>",
   got:"The <b>p(z) &gt; 0</b> guard is the continuous cousin of the \"or P(&beta; &cap; &gamma;) = 0\" clause in Definition 2.3. Every independence definition in this chapter carries some version of that escape hatch." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Proposition 2.4", pg:32, name:"Linearity of expectation",
-  eq:"&#120124;[X + Y] = &#120124;[X] + &#120124;[Y]",
+  eq:"\\(\\mathbb{E}[X+Y] = \\mathbb{E}[X] + \\mathbb{E}[Y]\\)",
   plain:"Expectations add, always.",
   anal:"<p>The best deal in probability. Koller stresses the reason: this holds <b>even when the variables are not independent</b>. No assumption, no conditions, no fine print.</p><p>It is why expected-value arguments so often crack problems that look hopeless. You can decompose a horrible correlated mess into pieces, take expectations separately, and add.</p>",
   got:"Compare with Proposition 2.6, where variance adds <b>only under independence</b>. Means always add; spreads do not. Assuming otherwise is how confidence intervals come out too narrow." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Proposition 2.5", pg:32, name:"Expectation of a product",
-  eq:"X &perp; Y &nbsp;&rArr;&nbsp; &#120124;[X &middot; Y] = &#120124;[X] &middot; &#120124;[Y]",
+  eq:"\\(X \\perp Y \\Rightarrow \\mathbb{E}[XY] = \\mathbb{E}[X]\\,\\mathbb{E}[Y]\\)",
   plain:"For independent variables, the expectation of the product is the product of the expectations.",
   anal:"<p>Unlike linearity, this one <b>charges admission</b>, and the price is independence.</p><p>Koller's Example 2.5 pays it off: two variables each &plusmn;1 with probability &frac12;. Independent, and &#120124;[XY] = 0. Correlate them and it moves. The gap between &#120124;[XY] and &#120124;[X]&#120124;[Y] is precisely covariance.</p>",
   got:"The converse is <b>false</b>. &#120124;[XY] = &#120124;[X]&#120124;[Y] does not prove independence; uncorrelated is weaker than independent." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Proposition 2.6", pg:33, name:"Variance of a sum",
-  eq:"X &perp; Y &nbsp;&rArr;&nbsp; Var[X + Y] = Var[X] + Var[Y]; &nbsp; Var[aX + b] = a&sup2;Var[X]",
+  eq:"\\(X \\perp Y \\Rightarrow \\mathrm{Var}[X+Y] = \\mathrm{Var}[X] + \\mathrm{Var}[Y]; \\quad \\mathrm{Var}[aX+b] = a^2\\mathrm{Var}[X]\\)",
   plain:"Variances add for independent variables, and scaling by a multiplies variance by a&sup2;.",
   anal:"<p>The a&sup2; is why standard deviation exists. Variance lives in squared units, so doubling a quantity quadruples its variance; taking the square root puts you back in the units of the thing you measured.</p><p>Adding independent noise sources is how averaging reduces error: n independent measurements give variance &sigma;&sup2;/n on the mean.</p>",
   got:"<b>Independence is required here and is not required for Proposition 2.4.</b> If your variables share a hidden common cause, variances do not simply add, and the extra covariance term is exactly what your over-confident model is missing." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Proposition 2.7", pg:33, name:"Gaussian moments",
-  eq:"X &sim; N(&mu;, &sigma;&sup2;) &nbsp;&rArr;&nbsp; &#120124;[X] = &mu;, &nbsp; Var[X] = &sigma;&sup2;",
+  eq:"\\(X \\sim \\mathcal{N}(\\mu,\\sigma^2) \\Rightarrow \\mathbb{E}[X]=\\mu,\\ \\mathrm{Var}[X]=\\sigma^2\\)",
   plain:"For a Gaussian, the parameters simply are the mean and the variance.",
   anal:"<p>Rare and convenient. In most families you have to work to recover the moments from the parameters. Here the labels tell the truth.</p>",
   got:"Do not generalize the habit. For most distributions the parameters are <b>not</b> the mean and variance, and reading them as if they were is a standard error." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Probability theory", id:"Theorem 2.1", pg:33, name:"Chebyshev inequality",
-  eq:"P(|X &minus; &#120124;[X]| &ge; t) &le; Var[X] / t&sup2;",
+  eq:"\\(P\\big(|X - \\mathbb{E}[X]| \\ge t\\big) \\le \\dfrac{\\mathrm{Var}[X]}{t^2}\\)",
   plain:"The chance of landing far from the mean is bounded by the variance divided by the squared distance.",
   anal:"<p>A guarantee that asks almost nothing in return. No normality, no independence, no shape assumption &mdash; just a finite variance. In exchange it gives a bound rather than an answer, and usually a loose one.</p><p>This is the formal version of \"a small variance means outcomes cluster near the mean.\" Chebyshev is what turns that intuition into something you can actually assert.</p>",
   got:"It is an <b>upper bound</b>, not an estimate. Chebyshev might tell you the probability is at most 0.25 when the truth is 0.003. Loose but universal beats tight but conditional when you know nothing about the distribution." },
 
 /* ================= CH 2 · GRAPHS ================= */
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Graph theory", id:"Definition 2.11", pg:34, name:"Undirected version, parents and children",
-  eq:"H = (X, E&prime;) where E&prime; = {X—Y : X &#8646; Y &isin; E}",
+  eq:"\\(H = (\\mathcal{X}, E\')\\ \\text{ where }\\ E\' = \\{X - Y : X \\rightleftharpoons Y \\in E\\}\\)",
   plain:"Strip the arrowheads off a graph. If X&rarr;Y then Y is a child of X and X is a parent of Y.",
   anal:"<p>Turning a one-way street map into a walking map. Every road still exists; you have just stopped caring which way traffic flows.</p><p>This operation matters more than it looks, because several later results are about undirected graphs, and this is how you get one from a directed model.</p>",
   got:"Stripping direction <b>loses information</b>. Two different directed graphs can share an undirected version while encoding completely different independence assumptions." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Graph theory", id:"Definition 2.12", pg:35, name:"Induced subgraph",
-  eq:"K[X] = (X, E&prime;), E&prime; = all edges of K with both endpoints in X",
+  eq:"\\(K[\\mathbf{X}] = (\\mathbf{X}, E\')\\), with \\(E\'\\) every edge of \\(K\\) whose endpoints both lie in \\(\\mathbf{X}\\)",
   plain:"Keep a chosen set of nodes and every edge that runs strictly between them; discard everything else.",
   anal:"<p>Photograph six people at a party and keep only the conversations happening <i>between those six</i>. A conversation one of them was having with someone outside the frame does not survive the crop.</p>",
   got:"You keep an edge only if <b>both</b> endpoints survive. Half-edges pointing out of the set are simply deleted, which is why an induced subgraph can look far more disconnected than the original." },
@@ -624,19 +629,19 @@ const DEFS = [
   got:"Defined via <b>trails</b>, not paths. A graph can be connected while there is no legal directed route between two of its nodes." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Graph theory", id:"Definition 2.18", pg:36, name:"Ancestor and descendant",
-  eq:"X is an ancestor of Y if a directed path runs X&#8321;=X, …, X&#8342;=Y",
+  eq:"\\(X\\) is an ancestor of \\(Y\\) iff a directed path runs \\(X_1 = X,\\ \\ldots,\\ X_k = Y\\)",
   plain:"Follow the arrows forward and everything you reach is a descendant; everything that can reach you is an ancestor.",
   anal:"<p>A family tree, and for once the metaphor is exact. Arrows point from parent to child, ancestors are upstream, descendants are downstream.</p><p>These become the vocabulary for reasoning about influence: in a Bayesian network, evidence about a descendant flows back up to change your belief about ancestors.</p>",
   got:"Ancestry uses <b>directed paths</b>, so unlike connectivity it respects arrows. Being connected to someone does not make them a relative." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Graph theory", id:"Definition 2.19", pg:36, name:"Topological ordering",
-  eq:"An ordering X&#8321;,…,X&#8345; is topological if X<sub>i</sub>&rarr;X<sub>j</sub> &isin; E implies i &lt; j",
+  eq:"\\(X_1,\\ldots,X_n\\) is topological iff \\(X_i \\to X_j \\in E \\Rightarrow i < j\\)",
   plain:"Line the nodes up so every arrow points forward in the list.",
   anal:"<p>A recipe you can actually follow. Boil the water before adding pasta; do not list \"drain\" above \"cook.\" Every prerequisite appears before the thing that needs it.</p><p>This is how you sample from a Bayesian network: walk the topological order and every parent already has a value by the time you need it.</p>",
   got:"It exists <b>only if the graph is acyclic</b>, and it is usually not unique. Several valid orders can exist for the same graph." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Graph theory", id:"Definition 2.20", pg:37, name:"Cycle and acyclic",
-  eq:"A cycle is a directed path X&#8321;,…,X&#8342; with X&#8321; = X&#8342;. Acyclic means no cycles.",
+  eq:"cycle: a directed path \\(X_1,\\ldots,X_k\\) with \\(X_1 = X_k\\). Acyclic \\(\\Leftrightarrow\\) no cycles",
   plain:"A cycle returns to its start while obeying arrow directions. A graph with none is acyclic.",
   anal:"<p>No time loops. You cannot be your own grandfather, and a variable cannot end up being its own cause.</p><p>Koller restricts nearly the whole book to acyclic graphs, and the reason is practical rather than philosophical: with a cycle, the chain-rule factorization has no valid order to unroll in, so the joint distribution does not decompose.</p>",
   got:"Compare with Definition 2.22. A <b>cycle</b> is built from a directed path; a <b>loop</b> is built from a trail. A graph can be acyclic and still be riddled with loops." },
@@ -648,7 +653,7 @@ const DEFS = [
   got:"When the graph is <b>entirely undirected</b>, the whole thing collapses into a single chain component. When it is entirely directed, every node is its own." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Graph theory", id:"Definition 2.22", pg:38, name:"Loop, singly connected, leaf",
-  eq:"A loop is a trail X&#8321;,…,X&#8342; with X&#8321; = X&#8342;. Singly connected means no loops. A leaf has exactly one neighbour.",
+  eq:"loop: a trail \\(X_1,\\ldots,X_k\\) with \\(X_1 = X_k\\). Singly connected \\(\\Leftrightarrow\\) no loops; a leaf has exactly one neighbour",
   plain:"Loops are cycles you are allowed to walk backwards through. A graph with none is singly connected.",
   anal:"<p>Two roads between the same pair of towns form a loop even if both are one-way in opposite directions. You could not <i>drive</i> the circuit, but you could walk it.</p><p>Singly connected graphs are the easy case: exactly one route between any two nodes, so inference is fast. Loops are what make exact inference expensive.</p>",
   got:"<b>Loop is to trail as cycle is to path.</b> That one sentence keeps the four terms straight, and this quartet is prime exam material." },
@@ -660,13 +665,13 @@ const DEFS = [
   got:"Koller flags this explicitly: <b>polytrees are very different from trees.</b> A polytree may give a node several parents and is only a tree once you strip the directions. His figure shows a polytree that is not a tree." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Graph theory", id:"Definition 2.24 & 2.25", pg:38, name:"Chordal graph",
-  eq:"A chord joins two nonconsecutive nodes of a loop. H is chordal if every loop of length &ge; 4 has a chord. K is chordal if its undirected version is.",
+  eq:"\\(H\\) is chordal iff every loop \\(X_1 - X_2 - \\cdots - X_k - X_1\\) with \\(k \\ge 4\\) has a chord K is chordal if its undirected version is.",
   plain:"No long loops without a shortcut across them. Equivalently, every big cycle is triangulated.",
   anal:"<p>Four people sitting in a square, each acquainted only with the two beside them. Nobody knows the person diagonally opposite. That is a chordless four-loop, and chordality forbids it: somebody has to know somebody across the square.</p><p>Why anyone cares: chordal graphs are exactly the ones where exact inference is tractable. \"Triangulating\" a graph is the standard preprocessing step for junction-tree inference, and it means adding chords until this property holds.</p>",
   got:"Loops of length <b>3 are automatically fine</b>, since there are no nonconsecutive nodes to join. The condition only bites at length 4 and above." },
 
 { mod:1, src:"Koller", ch:2, grp:"Chapter 2 · Graph theory", id:"Theorem 2.2 (Exercise)", pg:40, name:"Markov inequality",
-  eq:"X &ge; 0 &rArr; P(X &ge; t) &le; &#120124;[X] / t",
+  eq:"\\(X \\ge 0 \\Rightarrow P(X \\ge t) \\le \\dfrac{\\mathbb{E}[X]}{t}\\)",
   plain:"For a non-negative variable, the chance of exceeding t is at most the mean divided by t.",
   anal:"<p>Even weaker assumptions than Chebyshev: you need only non-negativity and a mean. No variance required.</p><p>The intuition is a budget. If average income is $50k, no more than 10% of people can earn over $500k, or the average would have to be higher.</p>",
   got:"Appears as an <b>exercise</b> in this chapter, not a proved theorem in the text. Chebyshev is actually a corollary of Markov applied to (X &minus; &#120124;[X])&sup2;." }
@@ -726,9 +731,25 @@ function draw() {
     </div>`;
   });
   out.innerHTML = html || `<div class="card">Nothing matches that search.</div>`;
+  KX(out);
 }
 document.getElementById("q").oninput = e => { term = e.target.value; draw(); };
 paintChips(); draw();
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script>
+window.KX = function (root) {
+  if (!window.renderMathInElement) return;
+  try {
+    renderMathInElement(root || document.body, {
+      delimiters: [{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}],
+      throwOnError: false,
+      ignoredTags: ["script","noscript","style","textarea","pre","option"]
+    });
+  } catch (e) {}
+};
+window.addEventListener("load", function(){ KX(); });
 </script>
 </body>
 </html>
